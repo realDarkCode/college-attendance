@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import Calendar from "../components/Calendar";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import Calendar from "../components/Calendar";
 import MonthlyStats from "../components/MonthlyStats";
 
 // A new component for displaying the loading progress
@@ -43,17 +43,19 @@ export default function Home() {
 
   const shouldAutoFetch = (lastFetchTime) => {
     if (!lastFetchTime) return true;
-    
+
     const lastFetch = new Date(lastFetchTime);
     const now = new Date();
-    
+
     // If it's the same day and before 10 AM, and last fetch was before today 10 AM
-    if (now.getDate() === lastFetch.getDate() && 
-        now.getMonth() === lastFetch.getMonth() &&
-        now.getFullYear() === lastFetch.getFullYear()) {
+    if (
+      now.getDate() === lastFetch.getDate() &&
+      now.getMonth() === lastFetch.getMonth() &&
+      now.getFullYear() === lastFetch.getFullYear()
+    ) {
       return now.getHours() >= 10 && lastFetch.getHours() < 10;
     }
-    
+
     // If it's a new day and it's after 10 AM
     return now.getHours() >= 10;
   };
@@ -67,7 +69,7 @@ export default function Home() {
   useEffect(() => {
     if (lastFetched && !isScraping && !autoFetchAttempted) {
       if (shouldAutoFetch(lastFetched)) {
-        console.log('Auto-fetching attendance data...');
+        console.log("Auto-fetching attendance data...");
         handleScrape();
       }
       setAutoFetchAttempted(true);
@@ -82,15 +84,20 @@ export default function Home() {
       await fetchHolidays();
 
       // After initial data is loaded, check if we need to auto-fetch
-      if (lastFetched && shouldAutoFetch(lastFetched) && !isScraping && !autoFetchAttempted) {
-        console.log('Initial auto-fetch triggered');
+      if (
+        lastFetched &&
+        shouldAutoFetch(lastFetched) &&
+        !isScraping &&
+        !autoFetchAttempted
+      ) {
+        console.log("Initial auto-fetch triggered");
         handleScrape();
         setAutoFetchAttempted(true);
       }
     };
 
     fetchInitialData();
-    
+
     // Cleanup interval on unmount
     return () => {
       if (pollingInterval.current) {
@@ -172,36 +179,38 @@ export default function Home() {
   };
 
   const formatRelativeTime = (isoString, now) => {
-    if (!isoString) return { text: 'Never fetched', color: 'text-red-400' };
+    if (!isoString) return { text: "Never fetched", color: "text-red-400" };
 
     const date = new Date(isoString);
     const diffInSeconds = Math.floor((now - date) / 1000);
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
-    
+
     let text, color;
-    
+
     // Determine the time text
     if (diffInSeconds < 60) {
-      text = `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
+      text = `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
     } else if (diffInMinutes < 60) {
-      text = `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+      text = `${diffInMinutes} minute${diffInMinutes !== 1 ? "s" : ""} ago`;
     } else if (diffInHours < 24) {
-      text = `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+      text = `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
-      text = `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+      text = `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
     }
-    
+
     // Determine the color based on time passed
     if (diffInHours <= 2) {
-      color = 'text-green-400';      // Green for recent (0-2 hours)
+      color = "text-green-400"; // Green for recent (0-2 hours)
+    } else if (diffInHours <= 4) {
+      color = "text-yellow-400"; // Yellow for somewhat old (2-4 hours)
     } else if (diffInHours <= 8) {
-      color = 'text-yellow-400';     // Yellow for somewhat old (2-8 hours)
+      color = "text-orange-400"; // orange for somewhat old (4-8 hours)
     } else {
-      color = 'text-red-300';        // Light red for old (>8 hours)
+      color = "text-red-300"; // Light red for old (>8 hours)
     }
-    
+
     return { text, color };
   };
 
@@ -241,7 +250,8 @@ export default function Home() {
               </h1>
               {studentName && (
                 <p className="text-lg text-gray-400 mt-4">
-                  Student: {studentName}
+                  Student Name:{" "}
+                  <span className="text-gray-300">{studentName}</span>
                 </p>
               )}
             </div>
@@ -253,8 +263,8 @@ export default function Home() {
                   }`}
                 >
                   {isScrapedToday
-                    ? "✔ Fetched for today"
-                    : "❗ Needs fetching for today"}
+                    ? "✔ Updated for today"
+                    : "❗ Needs updating for today"}
                 </p>
               </div>
               <Link
@@ -291,13 +301,20 @@ export default function Home() {
           <LoadingIndicator progress={scrapeProgress} message={scrapeMessage} />
         )}
 
-        <MonthlyStats attendanceData={attendance} currentDate={currentDate} holidays={holidays} />
+        <MonthlyStats
+          attendanceData={attendance}
+          currentDate={currentDate}
+          holidays={holidays}
+        />
 
         <div className="relative bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mt-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             {lastFetched && (
               <p className="text-sm order-2 sm:order-1 self-center">
-                Last fetched: <span className={formatRelativeTime(lastFetched, timeNow).color}>
+                Last updated:{" "}
+                <span
+                  className={formatRelativeTime(lastFetched, timeNow).color}
+                >
                   {formatRelativeTime(lastFetched, timeNow).text}
                 </span>
               </p>
@@ -308,7 +325,7 @@ export default function Home() {
                 disabled={isScraping}
                 className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
               >
-                {isScraping ? "Scraping..." : "Fetch Latest Attendance"}
+                {isScraping ? "Updating..." : "Update Latest Attendance"}
               </button>
             </div>
           </div>

@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-
 const Tooltip = ({ entry, holidayInfo }) => {
   if (!entry && !holidayInfo) return null;
 
   return (
-    <div className="absolute bottom-full mb-2 w-max p-2 bg-gray-900 border border-gray-600 rounded-md shadow-lg text-xs text-left opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+    <div className="absolute bottom-full mb-2 w-max p-2 bg-gray-900 border border-gray-600 rounded-md shadow-lg text-xs text-left opacity-0 group-hover:opacity-90 transition-opacity pointer-events-none z-10">
       {holidayInfo && (
         <p className="font-bold text-blue-400">{holidayInfo.name}</p>
       )}
@@ -169,7 +167,7 @@ export default function Calendar({
           const dayClasses = [
             "w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-colors text-sm sm:text-base",
             getStatusColor(status),
-            isToday ? "border-2 border-blue-800" : "border",
+            isToday ? "border-2 border-white/80" : "border",
           ];
 
           return (
