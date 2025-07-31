@@ -20,6 +20,8 @@ const Tooltip = ({ entry, holidayInfo }) => {
                   ? "text-red-400"
                   : entry.dayStatus === "Leave"
                   ? "text-yellow-400"
+                  : entry.dayStatus === "Error"
+                  ? "text-violet-400"
                   : "text-gray-400"
               }`}
             >
@@ -27,10 +29,21 @@ const Tooltip = ({ entry, holidayInfo }) => {
             </span>
           </p>
           <hr className="my-1 border-gray-600" />
-          <p>Working Days: {entry.data.workingDays}</p>
-          <p>Present: {entry.data.present}</p>
-          <p>Absent: {entry.data.absent}</p>
-          <p>Leave: {entry.data.leave}</p>
+          {entry.data ? (
+            <>
+              <p>Working Days: {entry.data.workingDays}</p>
+              <p>Present: {entry.data.present}</p>
+              <p>Absent: {entry.data.absent}</p>
+              <p>Leave: {entry.data.leave}</p>
+            </>
+          ) : entry.dayStatus === "Error" && entry.error ? (
+            <div className="text-red-500">
+              <p className="font-semibold">Error Details:</p>
+              <p className="text-xs mt-1">{entry.error}</p>
+            </div>
+          ) : (
+            <p className="text-red-500">Data unavailable due to error</p>
+          )}
         </>
       )}
     </div>
@@ -83,6 +96,8 @@ export default function Calendar({
         return "bg-red-500/50 border border-red-400";
       case "Leave":
         return "bg-yellow-500/50 border border-yellow-400";
+      case "Error":
+        return "bg-purple-500/50 border border-purple-400";
       case "No Change":
         return "bg-gray-600/90 border border-gray-500";
       case "Unavailable":

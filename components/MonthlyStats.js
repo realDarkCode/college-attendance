@@ -1,4 +1,8 @@
-export default function MonthlyStats({ attendanceData, currentDate, holidays = [] }) {
+export default function MonthlyStats({
+  attendanceData,
+  currentDate,
+  holidays = [],
+}) {
   const stats = attendanceData
     .filter((entry) => {
       const entryDate = new Date(entry.date);
@@ -12,6 +16,11 @@ export default function MonthlyStats({ attendanceData, currentDate, holidays = [
         return false;
       }
 
+      // Exclude error entries from counting
+      if (entry.dayStatus === "Error") {
+        return false;
+      }
+
       // Check for weekly holidays (Friday or Saturday)
       const dayOfWeek = entryDate.getDay();
       if (dayOfWeek === 5 || dayOfWeek === 6) {
@@ -19,7 +28,7 @@ export default function MonthlyStats({ attendanceData, currentDate, holidays = [
       }
 
       // Check for custom holidays
-      const isCustomHoliday = holidays.some(h => h.date === entry.date);
+      const isCustomHoliday = holidays.some((h) => h.date === entry.date);
       if (isCustomHoliday) {
         return false;
       }
@@ -36,8 +45,11 @@ export default function MonthlyStats({ attendanceData, currentDate, holidays = [
       { present: 0, absent: 0, leave: 0 }
     );
 
+  // Calculate total working days
+  const totalWorkingDays = stats.present + stats.absent + stats.leave;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
       <StatCard
         title="Present Days"
         value={stats.present}
@@ -49,15 +61,21 @@ export default function MonthlyStats({ attendanceData, currentDate, holidays = [
         value={stats.leave}
         color="text-yellow-400"
       />
+      <StatCard
+        title="Total Working Days"
+        value={totalWorkingDays}
+        color="text-cyan-400"
+      />
     </div>
   );
 }
 
-function StatCard({ title, value, color }) {
+function StatCard({ title, value, color, subtitle }) {
   return (
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
       <p className="text-sm text-gray-400">{title}</p>
       <p className={`text-3xl sm:text-4xl font-bold ${color}`}>{value}</p>
+      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
     </div>
   );
 }

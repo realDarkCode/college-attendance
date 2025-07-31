@@ -27,7 +27,78 @@ export default async function handler(req, res) {
   try {
     console.log("API: Starting scrape process...");
     const scrapedData = await scrapeAttendance();
+
+    // Handle error cases - either null return or error object
+    if (!scrapedData || scrapedData.error) {
+      console.log(
+        "API: Scraping failed:",
+        scrapedData?.error || "Unknown error"
+      );
+
+      // Get the current date for error entry
+      const now = new Date();
+      const options = {
+        timeZone: "Asia/Dhaka",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      };
+      const dateString = new Intl.DateTimeFormat("en-CA", options).format(now);
+
+      await ensureDirectoryExists(dataFilePath);
+
+      // Read existing data
+      let allData = [];
+      try {
+        const fileContent = await fs.readFile(dataFilePath, "utf-8");
+        allData = JSON.parse(fileContent);
+      } catch (error) {
+        if (error.code !== "ENOENT") {
+          throw error;
+        }
+      }
+
+      // Create error entry with specific error message
+      const errorEntry = {
+        date: dateString,
+        name: null,
+        data: null,
+        dayStatus: "Error",
+        fetchedAt: new Date().toISOString(),
+        error: scrapedData?.error || "Unknown scraping error",
+      };
+
+      // Add or update error entry
+      const existingEntryIndex = allData.findIndex(
+        (entry) => entry.date === dateString
+      );
+
+      if (existingEntryIndex !== -1) {
+        allData[existingEntryIndex] = errorEntry;
+        console.log(`API: Updated error entry for date: ${dateString}`);
+      } else {
+        allData.push(errorEntry);
+        console.log(`API: Added new error entry for date: ${dateString}`);
+      }
+
+      // Write the updated data back to the file
+      await fs.writeFile(dataFilePath, JSON.stringify(allData, null, 2));
+
+      return res.status(500).json({
+        success: false,
+        message: `Scraping failed: ${scrapedData?.error || "Unknown error"}`,
+        data: errorEntry,
+      });
+    }
+
     console.log("API: Scrape process completed.");
+
+    // Validate scraped data structure
+    if (!scrapedData.data || typeof scrapedData.data !== "object") {
+      throw new Error(
+        "Invalid scraped data structure - missing or invalid data object"
+      );
+    }
 
     await ensureDirectoryExists(dataFilePath);
 
@@ -47,12 +118,17 @@ export default async function handler(req, res) {
     allData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // Find the last entry that is NOT from the same day as the current scrape
-    const previousDayEntries = allData.filter(entry => entry.date < scrapedData.date);
-    const previousEntry = previousDayEntries.length > 0 ? previousDayEntries[previousDayEntries.length - 1] : null;
+    const previousDayEntries = allData.filter(
+      (entry) => entry.date < scrapedData.date
+    );
+    const previousEntry =
+      previousDayEntries.length > 0
+        ? previousDayEntries[previousDayEntries.length - 1]
+        : null;
 
     // Determine the status for the current day by comparing with the previous day
     let dayStatus = "No Change"; // Default to 'No Change'
-    if (previousEntry) {
+    if (previousEntry && previousEntry.data) {
       // Prioritize checking for absence or leave first
       if (scrapedData.data.absent > previousEntry.data.absent) {
         dayStatus = "Absent";
@@ -62,7 +138,7 @@ export default async function handler(req, res) {
         dayStatus = "Present";
       }
     } else {
-      // This is the first ever scrape. Set a baseline status.
+      // This is the first ever scrape or previous entry has no data. Set a baseline status.
       if (scrapedData.data.present > 0) {
         dayStatus = "Present";
       } else if (scrapedData.data.absent > 0) {
@@ -99,21 +175,17 @@ export default async function handler(req, res) {
     await fs.writeFile(dataFilePath, JSON.stringify(allData, null, 2));
     console.log("API: Data successfully saved to", dataFilePath);
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Scraping successful!",
-        data: scrapedData,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Scraping successful!",
+      data: scrapedData,
+    });
   } catch (error) {
     console.error("API: An error occurred in the scrape handler:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Scraping failed.",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Scraping failed.",
+      error: error.message,
+    });
   }
 }

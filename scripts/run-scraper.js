@@ -24,11 +24,16 @@ const writeAttendanceData = (data) => {
 };
 
 const getTodayDateString = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  // Use the same timezone-aware logic as the main scraper
+  const now = new Date();
+  const options = {
+    timeZone: 'Asia/Dhaka', // Corresponds to +06:00 timezone
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  };
+  // 'en-CA' locale formats the date as YYYY-MM-DD
+  return new Intl.DateTimeFormat('en-CA', options).format(now);
 };
 
 const wasScrapedToday = () => {
@@ -79,15 +84,16 @@ const run = async () => {
     const previousEntry =
       attendance.length > 0 ? attendance[attendance.length - 1] : null;
 
+    // Use the date returned from the scraper to ensure consistency
     const newEntry = {
-      date: getTodayDateString(),
+      date: scrapedData.date, // Use the timezone-correct date from the scraper
       name: scrapedData.name,
       data: scrapedData.data,
       dayStatus: getDayStatus(
         scrapedData.data,
         previousEntry ? previousEntry.data : null
       ),
-      fetchedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(), // UTC timestamp for when it was fetched
     };
 
     attendance.push(newEntry);
