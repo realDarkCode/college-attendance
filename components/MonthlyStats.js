@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function MonthlyStats({
   attendanceData,
   currentDate,
@@ -53,18 +55,18 @@ export default function MonthlyStats({
       <StatCard
         title="Present Days"
         value={stats.present}
-        color="text-green-400"
+        color="text-success"
       />
-      <StatCard title="Absent Days" value={stats.absent} color="text-red-400" />
       <StatCard
-        title="Leaves Taken"
-        value={stats.leave}
-        color="text-yellow-400"
+        title="Absent Days"
+        value={stats.absent}
+        color="text-destructive"
       />
+      <StatCard title="Leaves Taken" value={stats.leave} color="text-warning" />
       <StatCard
         title="Total Working Days"
         value={totalWorkingDays}
-        color="text-cyan-400"
+        color="text-primary"
       />
     </div>
   );
@@ -72,10 +74,16 @@ export default function MonthlyStats({
 
 function StatCard({ title, value, color, subtitle }) {
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-      <p className="text-sm text-gray-400">{title}</p>
-      <p className={`text-3xl sm:text-4xl font-bold ${color}`}>{value}</p>
-      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
-    </div>
+    <Card className="bg-card-secondary">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className={`text-2xl font-bold ${color}`}>{value}</div>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

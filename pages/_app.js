@@ -1,9 +1,9 @@
-import "../styles/globals.css";
 import Head from "next/head";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <>
+    <main className="dark">
       <Head>
         <link
           rel="apple-touch-icon"
@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }) {
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <Component {...pageProps} />
-    </>
+    </main>
   );
 }
 

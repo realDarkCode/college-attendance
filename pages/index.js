@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -6,21 +8,23 @@ import MonthlyStats from "../components/MonthlyStats";
 
 // A new component for displaying the loading progress
 const LoadingIndicator = ({ progress, message }) => (
-  <div className="w-full bg-gray-800 p-6 rounded-lg shadow-lg my-8">
-    <h3 className="text-xl font-semibold text-cyan-400 mb-4">
-      Scraping in Progress...
-    </h3>
-    <p className="text-gray-400 mb-2">{message}</p>
-    <div className="w-full bg-gray-700 rounded-full h-4">
-      <div
-        className="bg-cyan-500 h-4 rounded-full transition-all duration-500 ease-out"
-        style={{ width: `${progress}%` }}
-      ></div>
-    </div>
-    {progress > 0 && (
-      <p className="text-right text-sm font-mono mt-1">{progress}%</p>
-    )}
-  </div>
+  <Card className="w-full my-8">
+    <CardHeader>
+      <CardTitle>Scraping in Progress...</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p className="text-muted-foreground mb-2">{message}</p>
+      <div className="w-full bg-muted rounded-full h-4">
+        <div
+          className="bg-primary h-4 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+      {progress > 0 && (
+        <p className="text-right text-sm font-mono mt-1">{progress}%</p>
+      )}
+    </CardContent>
+  </Card>
 );
 
 export default function Home() {
@@ -202,13 +206,13 @@ export default function Home() {
 
     // Determine the color based on time passed
     if (diffInHours <= 2) {
-      color = "text-green-400"; // Green for recent (0-2 hours)
+      color = "text-success"; // Green for recent (0-2 hours)
     } else if (diffInHours <= 4) {
-      color = "text-yellow-400"; // Yellow for somewhat old (2-4 hours)
+      color = "text-warning"; // Yellow for somewhat old (2-4 hours)
     } else if (diffInHours <= 8) {
       color = "text-orange-400"; // orange for somewhat old (4-8 hours)
     } else {
-      color = "text-red-300"; // Light red for old (>8 hours)
+      color = "text-destructive"; // Light red for old (>8 hours)
     }
 
     return { text, color };
@@ -237,7 +241,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
         <title>College Attendance Tracker</title>
       </Head>
@@ -245,33 +249,19 @@ export default function Home() {
         <header className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400">
-                College Attendance Tracker
+              <h1 className="text-4xl font-bold">
+                <span className="text-primary">Attendance</span> Tracker
               </h1>
               {studentName && (
-                <p className="text-lg text-gray-400 mt-4">
+                <p className="text-lg text-muted-foreground mt-4">
                   Student Name:{" "}
-                  <span className="text-gray-300">{studentName}</span>
+                  <span className="text-foreground">{studentName}</span>
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-4 self-end sm:self-auto">
-              <div className="text-right">
-                <p
-                  className={`text-sm ${
-                    isScrapedToday ? "text-green-400" : "text-yellow-400"
-                  }`}
-                >
-                  {isScrapedToday
-                    ? "✔ Updated for today"
-                    : "❗ Needs updating for today"}
-                </p>
-              </div>
-              <Link
-                href="/settings"
-                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                Settings
+            <div className="flex gap-4">
+              <Link href="/settings" passHref>
+                <Button variant="outline">Settings</Button>
               </Link>
             </div>
           </div>
@@ -281,15 +271,15 @@ export default function Home() {
           <div
             className={`p-4 mb-6 text-sm rounded-lg flex justify-between items-center ${
               uiMessage.type === "error"
-                ? "bg-red-900/50 text-red-300"
-                : "bg-green-900/50 text-green-300"
+                ? "bg-destructive/10 text-destructive"
+                : "bg-success/10 text-success"
             }`}
           >
             <span>{uiMessage.text}</span>
             {uiMessage.text.includes("Credentials") && (
               <Link
                 href="/settings"
-                className="font-bold underline hover:text-cyan-400 ml-4"
+                className="font-bold underline hover:text-primary ml-4"
               >
                 Go to Settings
               </Link>
@@ -307,8 +297,8 @@ export default function Home() {
           holidays={holidays}
         />
 
-        <div className="relative bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <Card className="mt-8 bg-card-secondary">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {lastFetched && (
               <p className="text-sm order-2 sm:order-1 self-center">
                 Last updated:{" "}
@@ -320,22 +310,20 @@ export default function Home() {
               </p>
             )}
             <div className="flex justify-end w-full sm:w-auto order-1 sm:order-2">
-              <button
-                onClick={handleScrape}
-                disabled={isScraping}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-              >
+              <Button onClick={handleScrape} disabled={isScraping}>
                 {isScraping ? "Updating..." : "Update Latest Attendance"}
-              </button>
+              </Button>
             </div>
-          </div>
-          <Calendar
-            attendanceData={attendance}
-            holidays={holidays}
-            currentDate={currentDate}
-            setCurrentDate={setCurrentDate}
-          />
-        </div>
+          </CardHeader>
+          <CardContent>
+            <Calendar
+              attendanceData={attendance}
+              holidays={holidays}
+              currentDate={currentDate}
+              setCurrentDate={setCurrentDate}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -1,6 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import Head from "next/head";
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Settings() {
   const [holidays, setHolidays] = useState([]);
@@ -98,162 +103,128 @@ export default function Settings() {
   return (
     <>
       <Head>
-        <title>Settings - College Attendance Tracker</title>
+        <title>Settings - Attendance Tracker</title>
       </Head>
-      <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8 font-sans overflow-x-hidden">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400">
-              Settings
-            </h1>
-            <Link
-              href="/"
-              className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-            >
-              &larr; Back to Home
+      <main className="min-h-screen bg-background text-foreground p-4 sm:p-8">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <Link href="/" passHref>
+              <Button variant="outline">Back to Home</Button>
             </Link>
           </div>
 
-          {/* Credentials Management */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Manage Credentials</h2>
-            <form onSubmit={handleUpdateCredentials} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={credentials.username}
-                  onChange={(e) =>
-                    setCredentials({ ...credentials, username: e.target.value })
-                  }
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md p-2"
-                />
-              </div>
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Password
-                </label>
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  value={credentials.password}
-                  onChange={(e) =>
-                    setCredentials({ ...credentials, password: e.target.value })
-                  }
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute inset-y-0 right-0 top-6 flex items-center px-3 text-gray-400 hover:text-cyan-400 focus:outline-none"
-                >
-                  {passwordVisible ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
-                        clipRule="evenodd"
+          <div className="grid gap-8 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Login Credentials</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateCredentials} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      value={credentials.username}
+                      onChange={(e) =>
+                        setCredentials({
+                          ...credentials,
+                          username: e.target.value,
+                        })
+                      }
+                      placeholder="Enter your username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={passwordVisible ? "text" : "password"}
+                        value={credentials.password}
+                        onChange={(e) =>
+                          setCredentials({
+                            ...credentials,
+                            password: e.target.value,
+                          })
+                        }
+                        placeholder="Enter your password"
                       />
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.742L2.303 6.546A10.042 10.042 0 01.458 10c1.274 4.057 5.022 7 9.542 7 .847 0 1.673-.105 2.454-.303z" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              <button
-                type="submit"
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                Update Credentials
-              </button>
-            </form>
-            {credMessage && (
-              <p className="text-sm text-gray-400 mt-4">{credMessage}</p>
-            )}
-          </div>
-
-          {/* Holiday Management */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Manage Holidays</h2>
-            <form onSubmit={handleAddHoliday} className="space-y-4 mb-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="date"
-                  value={newHoliday.date}
-                  onChange={(e) =>
-                    setNewHoliday({ ...newHoliday, date: e.target.value })
-                  }
-                  className="bg-gray-700 border border-gray-600 rounded-md p-2 w-full sm:w-1/2"
-                />
-                <input
-                  type="text"
-                  placeholder="Holiday Name (e.g., Summer Break)"
-                  value={newHoliday.name}
-                  onChange={(e) =>
-                    setNewHoliday({ ...newHoliday, name: e.target.value })
-                  }
-                  className="bg-gray-700 border border-gray-600 rounded-md p-2 flex-grow"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                Add Holiday
-              </button>
-            </form>
-            {message && <p className="text-sm text-gray-400 mb-4">{message}</p>}
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Custom Holiday List</h3>
-            {holidays.length > 0 ? (
-              <ul className="space-y-2">
-                {holidays.map((holiday) => (
-                  <li
-                    key={holiday.date}
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gray-700 p-3 rounded-md"
-                  >
-                    <div>
-                      <span className="font-semibold">{holiday.name}</span>
-                      <span className="text-sm text-gray-400 ml-2">
-                        ({holiday.date})
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                        className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-muted-foreground"
+                      >
+                        {passwordVisible ? "Hide" : "Show"}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleRemoveHoliday(holiday.date)}
-                      className="text-red-400 hover:text-red-500 font-semibold"
+                  </div>
+                  <Button type="submit">Update Credentials</Button>
+                </form>
+                {credMessage && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    {credMessage}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Holidays</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleAddHoliday} className="flex gap-2 mb-4">
+                  <Input
+                    type="date"
+                    value={newHoliday.date}
+                    onChange={(e) =>
+                      setNewHoliday({ ...newHoliday, date: e.target.value })
+                    }
+                    className="w-full"
+                  />
+                  <Input
+                    type="text"
+                    value={newHoliday.name}
+                    onChange={(e) =>
+                      setNewHoliday({ ...newHoliday, name: e.target.value })
+                    }
+                    placeholder="Holiday Name"
+                    className="w-full"
+                  />
+                  <Button type="submit">Add</Button>
+                </form>
+                {message && (
+                  <p className="mb-4 text-sm text-center text-muted-foreground">
+                    {message}
+                  </p>
+                )}
+                <Separator />
+                <ul className="mt-4 space-y-2">
+                  {holidays.map((holiday) => (
+                    <li
+                      key={holiday.date}
+                      className="flex justify-between items-center p-2 bg-muted rounded-md"
                     >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-400">No custom holidays added yet.</p>
-            )}
+                      <span>
+                        {holiday.date} - {holiday.name}
+                      </span>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveHoliday(holiday.date)}
+                      >
+                        Remove
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }
