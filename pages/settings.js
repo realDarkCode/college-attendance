@@ -12,7 +12,7 @@ import {
   CodeXml,
   Eye,
   EyeOff,
-  Github,
+  HeartIcon,
   Home,
   Save,
   Trash2,
@@ -330,7 +330,6 @@ export default function Settings() {
             Settings
           </h1>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Link href="/" passHref>
               <Button variant="outline">
                 <Home className="mr-2 h-4 w-4" />
@@ -436,6 +435,28 @@ export default function Settings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
+                <UserCog className="h-5 w-5 text-primary" />
+                Theme Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="theme-toggle">Choose Theme</Label>
+                  <div id="theme-toggle" className="flex justify-start">
+                    <ThemeToggle />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Select your preferred theme for the application
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-primary" />
                 Manage Holidays
               </CardTitle>
@@ -505,16 +526,17 @@ export default function Settings() {
 
           {/* Footer */}
           <footer className="mt-12 py-8 text-center glass-card">
-            <div className="text-sm text-accent">
-              Made with <CodeXml className="inline h-4 w-4 mx-1 text-primary" />
+            <div className="text-sm text-base-foreground flex items-center justify-center gap-1">
+              Made with{" "}
+              <HeartIcon className="inline size-5 text-destructive-foreground" />{" "}
               by{" "}
               <a
                 href="https://github.com/realDarkCode"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary transition-colors hover:text-accent"
+                className="inline-flex items-center justify-center gap-1 text-primary transition-colors hover:text-underline"
               >
-                <Github className="h-4 w-4" />
+                <CodeXml className="inline size-5  text-primary" />
                 DarkCode
               </a>
             </div>

@@ -48,8 +48,12 @@ const CalendarTooltip = ({ entry, holidayInfo, children }) => {
                       : entry.dayStatus === "Error"
                       ? "text-destructive-foreground"
                       : entry.dayStatus === "No Change"
-                      ? "text-popover-foreground"
-                      : "text-popover"
+                      ? "text-primary"
+                      : entry.dayStatus === "Unavailable"
+                      ? "text-muted-foreground"
+                      : entry.dayStatus === "Holiday"
+                      ? "text-accent-foreground"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {entry.dayStatus}
@@ -233,9 +237,9 @@ export default function Calendar({
               currentDate.getFullYear() === today.getFullYear();
 
             const dayClasses = [
-              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all duration-200 text-sm sm:text-base cursor-pointer hover:scale-105 ",
+              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all bg-muted duration-200 text-sm sm:text-base cursor-pointer hover:scale-105 ",
               getStatusColor(status),
-              isToday ? "ring-2 ring-primary shadow-md shadow-primary" : "",
+              isToday ? "ring-1 ring-primary shadow shadow-primary" : "",
             ];
 
             return (

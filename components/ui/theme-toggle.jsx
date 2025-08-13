@@ -1,13 +1,12 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "./button";
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem("theme") || "light";
+    // Check for saved theme preference or default to dark
+    const savedTheme = localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
     document.documentElement.classList.toggle("dark", savedTheme === "dark");
   }, []);
@@ -20,18 +19,44 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={toggleTheme}
-      className="bg-card/50 backdrop-blur-sm hover:bg-card/70 border-card-border"
-    >
-      {theme === "light" ? (
-        <Moon className="h-4 w-4" />
-      ) : (
+    <div className="glass-card p-1 flex items-center gap-1 w-fit">
+      <button
+        onClick={() => {
+          if (theme !== "light") toggleTheme();
+        }}
+        className={`
+          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out
+          ${
+            theme === "light"
+              ? "bg-primary text-primary-foreground shadow-lg scale-105"
+              : "hover:bg-accent/20 text-muted-foreground hover:text-foreground"
+          }
+        `}
+        aria-label="Switch to light theme"
+      >
         <Sun className="h-4 w-4" />
-      )}
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+        <span className="ml-2 text-sm font-medium hidden sm:inline">Light</span>
+      </button>
+
+      <button
+        onClick={() => {
+          if (theme !== "dark") toggleTheme();
+        }}
+        className={`
+          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out
+          ${
+            theme === "dark"
+              ? "bg-primary text-primary-foreground shadow-lg scale-105"
+              : "hover:bg-accent/20 text-muted-foreground hover:text-foreground"
+          }
+        `}
+        aria-label="Switch to dark theme"
+      >
+        <Moon className="h-4 w-4" />
+        <span className="ml-2 text-sm font-medium hidden sm:inline">Dark</span>
+      </button>
+
+      <span className="sr-only">Theme toggle - Currently {theme} mode</span>
+    </div>
   );
 };

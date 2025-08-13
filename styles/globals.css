@@ -204,7 +204,7 @@
 }
 
 .attendance-no-change {
-  background-color: transparent;
+  background-color: color-mix(in srgb, var(--muted) 70%, black 25%);
   color: var(--accent-foreground);
   border-color: var(--border);
 }

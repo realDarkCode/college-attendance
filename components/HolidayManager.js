@@ -96,16 +96,18 @@ const HolidayManager = ({ onAddHoliday, message }) => {
     }
 
     // Generate a unique range ID for grouping
-    const rangeId = `${dates[0]}_${dates[dates.length - 1]}_${holidayName.trim()}`;
+    const rangeId = `${dates[0]}_${
+      dates[dates.length - 1]
+    }_${holidayName.trim()}`;
 
     // Add each date individually but with range metadata
     for (const date of dates) {
-      await onAddHoliday({ 
-        date, 
+      await onAddHoliday({
+        date,
         name: holidayName.trim(),
         isRange: true,
         rangeId: rangeId,
-        totalDays: dates.length
+        totalDays: dates.length,
       });
     }
 
@@ -153,7 +155,7 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                       variant="outline"
                       className={`w-full justify-start text-left font-normal bg-background/50 backdrop-blur-sm hover:bg-background/70 border-border  transition-all duration-200 ${
                         errors.date
-                          ? "border-destructive focus-visible:ring-destructive"
+                          ? "border-destructive-foreground focus-visible:ring-destructive-foreground"
                           : ""
                       }`}
                     >
@@ -191,7 +193,7 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                   </PopoverContent>
                 </Popover>
                 {errors.date && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
+                  <div className="flex items-center gap-2 text-sm text-destructive-foreground">
                     <AlertCircle className="h-4 w-4" />
                     {errors.date}
                   </div>
@@ -219,13 +221,13 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                   placeholder="Enter holiday name"
                   className={`w-full bg-background/50 backdrop-blur-sm border-border transition-all duration-200 focus:bg-background/70 ${
                     errors.name
-                      ? "border-destructive focus-visible:ring-destructive"
+                      ? "border-destructive-foreground focus-visible:ring-destructive-foreground"
                       : ""
                   }`}
                   disabled={isSubmitting}
                 />
                 {errors.name && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
+                  <div className="flex items-center gap-2 text-sm text-destructive-foreground">
                     <AlertCircle className="h-4 w-4" />
                     {errors.name}
                   </div>
@@ -274,7 +276,7 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                       variant="outline"
                       className={`w-full justify-start text-left font-normal bg-background/50 backdrop-blur-sm hover:bg-background/70 border-border transition-all duration-200 ${
                         errors.date
-                          ? "border-destructive focus-visible:ring-destructive"
+                          ? "border-destructive-foreground focus-visible:ring-destructive-foreground"
                           : ""
                       }`}
                     >
@@ -312,7 +314,7 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                   </PopoverContent>
                 </Popover>
                 {errors.date && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
+                  <div className="flex items-center gap-2 text-sm text-destructive-foreground">
                     <AlertCircle className="h-4 w-4" />
                     {errors.date}
                   </div>
@@ -340,13 +342,13 @@ const HolidayManager = ({ onAddHoliday, message }) => {
                   placeholder="Enter holiday name"
                   className={`w-full bg-background/50 backdrop-blur-sm border-border transition-all duration-200 focus:bg-background/70 ${
                     errors.name
-                      ? "border-destructive focus-visible:ring-destructive"
+                      ? "border-destructive-foreground focus-visible:ring-destructive-foreground"
                       : ""
                   }`}
                   disabled={isSubmitting}
                 />
                 {errors.name && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
+                  <div className="flex items-center gap-2 text-sm text-destructive-foreground">
                     <AlertCircle className="h-4 w-4" />
                     {errors.name}
                   </div>

@@ -51,7 +51,7 @@ export default function MonthlyStats({
   const totalWorkingDays = stats.present + stats.absent + stats.leave;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard
         title="Total Working Days"
         value={totalWorkingDays}
@@ -78,14 +78,14 @@ export default function MonthlyStats({
 
 function StatCard({ title, value, color, subtitle }) {
   return (
-    <Card className="glass-card py-2 gap-0">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3">
+    <Card className="glass-card py-1 gap-0 transition-transform transition-200 hover:scale-105 cursor-pointer">
+      <CardHeader className="flex flex-row items-center justify-center space-y-0 pb-1 pt-3">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="pb-2 pt-0">
-        <div className={`text-xl font-bold ${color}`}>{value}</div>
+      <CardContent className="pb-0 pt-0">
+        <div className={`text-xl font-bold ${color} text-center`}>{value}</div>
         {subtitle && (
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-muted-foreground ">{subtitle}</p>
         )}
       </CardContent>
     </Card>

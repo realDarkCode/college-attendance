@@ -1,13 +1,12 @@
+import MonthlyStats from "@/components/MonthlyStats";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoadingSpinner, SkeletonLoader } from "@/components/ui/loading";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RefreshCw, Settings } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Calendar from "../components/Calendar";
-import MonthlyStats from "../components/MonthlyStats";
 
 // A new component for displaying the loading progress
 const LoadingIndicator = ({ progress, message }) => (
@@ -225,6 +224,7 @@ export default function Home() {
 
   const handleScrape = async () => {
     setIsScraping(true);
+    setCalendarLoading(true);
     setScrapeMessage("Initializing...");
     setScrapeProgress(0);
 
@@ -242,6 +242,8 @@ export default function Home() {
       setUiMessage({ text: errorMsg, type: "error" });
       setIsScraping(false);
       clearInterval(pollingInterval.current);
+    } finally {
+      setCalendarLoading(false);
     }
   };
 
@@ -297,21 +299,12 @@ export default function Home() {
       <div className="max-w-4xl mx-auto page-transition">
         <header className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <div>
+            <div className="w-full">
               <h1 className="text-3xl sm:text-4xl font-bold">
                 <span className="text-primary">Attendance</span> Tracker
               </h1>
-              {studentName && (
-                <p className="text-base sm:text-lg text-muted-foreground mt-2 lg:mt-4">
-                  Student Name:{" "}
-                  <span className="text-foreground font-medium">
-                    {studentName}
-                  </span>
-                </p>
-              )}
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-              <ThemeToggle />
               <Link href="/settings" passHref>
                 <Button
                   variant="outline"
@@ -336,6 +329,26 @@ export default function Home() {
                 )}
               </Button>
             </div>
+          </div>
+          <div className="flex w-full justify-between px-2 my-4 items-center">
+            {studentName && (
+              <p className="text-base sm:text-lg text-muted-foreground">
+                Name:{" "}
+                <span className="text-foreground font-medium">
+                  {studentName}
+                </span>
+              </p>
+            )}
+            {lastFetched && (
+              <p className="text-base   text-muted-foreground">
+                Last updated:{" "}
+                <span
+                  className={formatRelativeTime(lastFetched, timeNow).color}
+                >
+                  {formatRelativeTime(lastFetched, timeNow).text}
+                </span>
+              </p>
+            )}
           </div>
         </header>
 
@@ -371,19 +384,8 @@ export default function Home() {
               holidays={holidays}
             />
           </div>
-
           <div className="glass-card">
             <div className="p-6">
-              {lastFetched && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  Last updated:{" "}
-                  <span
-                    className={formatRelativeTime(lastFetched, timeNow).color}
-                  >
-                    {formatRelativeTime(lastFetched, timeNow).text}
-                  </span>
-                </p>
-              )}
               <div className="relative">
                 <Calendar
                   attendanceData={attendance}
@@ -394,7 +396,7 @@ export default function Home() {
                 />
                 {calendarLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                    <LoadingSpinner text="Loading calendar..." />
+                    <LoadingSpinner text="Updating calendar..." />
                   </div>
                 )}
               </div>
