@@ -103,7 +103,7 @@ export default function Settings() {
   const handleAddHoliday = async (holidayData) => {
     try {
       setMessage("Adding holiday...");
-      
+
       // Handle both single holidays and range holidays (now all individual)
       const res = await fetch("/api/holidays", {
         method: "POST",
@@ -112,7 +112,7 @@ export default function Settings() {
       });
       const result = await res.json();
       setMessage(result.message);
-      
+
       // Refresh holidays list
       fetchHolidays();
     } catch (error) {
@@ -127,7 +127,9 @@ export default function Settings() {
     const processedHolidays = new Set();
 
     // Sort holidays by date first
-    const sortedHolidays = [...holidays].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sortedHolidays = [...holidays].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
 
     sortedHolidays.forEach((holiday, index) => {
       if (processedHolidays.has(holiday.date)) return;
@@ -139,7 +141,7 @@ export default function Settings() {
             name: holiday.name,
             dates: [],
             rangeId: holiday.rangeId,
-            isRange: true
+            isRange: true,
           };
         }
         groups[holiday.rangeId].dates.push(holiday.date);
@@ -148,16 +150,18 @@ export default function Settings() {
         // Look for consecutive holidays with the same name
         const consecutiveHolidays = [holiday];
         processedHolidays.add(holiday.date);
-        
+
         let currentDate = new Date(holiday.date);
         for (let i = index + 1; i < sortedHolidays.length; i++) {
           currentDate.setDate(currentDate.getDate() + 1);
-          const nextDateStr = currentDate.toISOString().split('T')[0];
+          const nextDateStr = currentDate.toISOString().split("T")[0];
           const nextHoliday = sortedHolidays[i];
-          
-          if (nextHoliday.date === nextDateStr && 
-              nextHoliday.name === holiday.name && 
-              !processedHolidays.has(nextHoliday.date)) {
+
+          if (
+            nextHoliday.date === nextDateStr &&
+            nextHoliday.name === holiday.name &&
+            !processedHolidays.has(nextHoliday.date)
+          ) {
             consecutiveHolidays.push(nextHoliday);
             processedHolidays.add(nextHoliday.date);
           } else {
@@ -167,12 +171,14 @@ export default function Settings() {
 
         if (consecutiveHolidays.length > 1) {
           // Create a group for consecutive holidays
-          const groupId = `auto_${holiday.date}_${consecutiveHolidays[consecutiveHolidays.length - 1].date}_${holiday.name}`;
+          const groupId = `auto_${holiday.date}_${
+            consecutiveHolidays[consecutiveHolidays.length - 1].date
+          }_${holiday.name}`;
           groups[groupId] = {
             name: holiday.name,
-            dates: consecutiveHolidays.map(h => h.date),
+            dates: consecutiveHolidays.map((h) => h.date),
             rangeId: groupId,
-            isRange: true
+            isRange: true,
           };
         } else {
           // Single holiday
@@ -182,13 +188,14 @@ export default function Settings() {
     });
 
     // Format display dates for groups
-    Object.values(groups).forEach(group => {
+    Object.values(groups).forEach((group) => {
       group.dates.sort();
       group.startDate = group.dates[0];
       group.endDate = group.dates[group.dates.length - 1];
-      group.displayDate = group.dates.length === 1 
-        ? formatDate(group.startDate)
-        : `${formatDate(group.startDate)} - ${formatDate(group.endDate)}`;
+      group.displayDate =
+        group.dates.length === 1
+          ? formatDate(group.startDate)
+          : `${formatDate(group.startDate)} - ${formatDate(group.endDate)}`;
     });
 
     // Combine and sort all holidays by date (most recent first)
@@ -215,7 +222,9 @@ export default function Settings() {
             throw new Error("Failed to remove holiday");
           }
         }
-        setMessage(`Removed ${holidayToRemove.dates.length} holidays from range: ${holidayToRemove.name}`);
+        setMessage(
+          `Removed ${holidayToRemove.dates.length} holidays from range: ${holidayToRemove.name}`
+        );
       } else {
         // Remove single holiday
         setMessage("Removing holiday...");
@@ -227,7 +236,7 @@ export default function Settings() {
         const result = await res.json();
         setMessage(result.message);
       }
-      
+
       // Refresh holidays list
       fetchHolidays();
     } catch (error) {
@@ -263,82 +272,80 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <>
+      <div className="glass-container min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
         <Head>
           <title>Settings - Attendance Tracker</title>
         </Head>
-        <main className="glass-bg min-h-screen text-foreground p-4 sm:p-6 lg:p-8">
-          <div className="container mx-auto page-transition">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <Skeleton className="h-8 w-32" />
-              <div className="flex gap-3">
-                <Skeleton className="h-10 w-10" />
-                <Skeleton className="h-10 w-32" />
-              </div>
+        <main className="max-w-4xl mx-auto page-transition">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <Skeleton className="h-8 w-32" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-32" />
             </div>
-
-            {/* Credentials Section Skeleton */}
-            <Card className="glass-card mb-8">
-              <CardHeader>
-                <Skeleton className="h-6 w-40" />
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-                <Skeleton className="h-10 w-32" />
-              </CardContent>
-            </Card>
-
-            {/* Holiday Section Skeleton */}
+          </div>
+          <div className="space-y-8">
             <Card className="glass-card">
               <CardHeader>
                 <Skeleton className="h-6 w-40" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-20 w-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="flex justify-end">
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
               </CardContent>
             </Card>
           </div>
         </main>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="glass-container min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
         <title>Settings - Attendance Tracker</title>
       </Head>
-      <main className="glass-bg min-h-screen text-foreground p-4 sm:p-6 lg:p-8">
-        <div className="container mx-auto page-transition">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-responsive">
-              Settings
-            </h1>
-            <div className="flex gap-3">
-              <ThemeToggle />
-              <Link href="/" passHref>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <Home className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
+      <main className="max-w-4xl mx-auto page-transition">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+            Settings
+          </h1>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/" passHref>
+              <Button variant="outline">
+                <Home className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
           </div>
+        </div>
 
-          {/* Credentials Section */}
-          <Card className="glass-card mb-8">
+        <div className="space-y-8">
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserCog className="h-5 w-5 text-primary" />
-                Login Credentials
+                User Credentials
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -411,43 +418,21 @@ export default function Settings() {
                     </div>
                   )}
                 </div>
-                <Button
-                  type="submit"
-                  disabled={updating}
-                  className="w-full sm:w-auto"
-                >
-                  {updating ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Updating...
-                    </div>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Credentials
-                    </>
-                  )}
-                </Button>
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={updating}>
+                    <Save className="mr-2 h-4 w-4" />
+                    {updating ? "Saving..." : "Save Credentials"}
+                  </Button>
+                </div>
               </form>
               {credMessage && (
-                <p
-                  className={`mt-4 text-sm ${
-                    credMessage.includes("successfully") ||
-                    credMessage.includes("saved")
-                      ? "text-green-600"
-                      : credMessage.includes("error") ||
-                        credMessage.includes("failed")
-                      ? "text-red-500"
-                      : "text-muted-foreground"
-                  }`}
-                >
+                <p className="mt-4 text-sm text-center text-muted-foreground">
                   {credMessage}
                 </p>
               )}
             </CardContent>
           </Card>
 
-          {/* Holiday Management Section */}
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -481,7 +466,9 @@ export default function Settings() {
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-grow">
                         <span className="text-xs font-mono bg-primary/20 text-primary px-2 py-1 rounded-md w-fit border border-primary/30">
-                          {holiday.isRange ? holiday.displayDate : formatDate(holiday.date)}
+                          {holiday.isRange
+                            ? holiday.displayDate
+                            : formatDate(holiday.date)}
                         </span>
                         <span className="font-medium text-foreground">
                           {holiday.name}
@@ -499,7 +486,9 @@ export default function Settings() {
                         className="w-full sm:w-auto bg-destructive/90 hover:bg-destructive text-destructive-foreground shadow-sm transition-all duration-200"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        {holiday.isRange ? `Remove ${holiday.dates.length} days` : 'Remove'}
+                        {holiday.isRange
+                          ? `Remove ${holiday.dates.length} days`
+                          : "Remove"}
                       </Button>
                     </div>
                   ))}
@@ -515,24 +504,23 @@ export default function Settings() {
           </Card>
 
           {/* Footer */}
-          <footer className="footer">
-            <div className="text-sm text-muted-foreground">
-              Made with{" "}
-              <CodeXml className="inline h-4 w-4 mx-1 text-primary" />
+          <footer className="mt-12 py-8 text-center glass-card">
+            <div className="text-sm text-accent">
+              Made with <CodeXml className="inline h-4 w-4 mx-1 text-primary" />
               by{" "}
               <a
                 href="https://github.com/realDarkCode"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1 text-primary transition-colors hover:text-accent"
               >
                 <Github className="h-4 w-4" />
-                darkcode
+                DarkCode
               </a>
             </div>
           </footer>
         </div>
       </main>
-    </>
+    </div>
   );
 }

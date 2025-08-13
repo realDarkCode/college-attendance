@@ -11,23 +11,19 @@ import MonthlyStats from "../components/MonthlyStats";
 
 // A new component for displaying the loading progress
 const LoadingIndicator = ({ progress, message }) => (
-  <Card className="w-full my-8 glass-card">
-    <CardHeader>
-      <CardTitle>Scraping in Progress...</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="text-muted-foreground mb-2">{message}</p>
-      <div className="w-full bg-muted rounded-full h-4">
-        <div
-          className="bg-primary h-4 rounded-full transition-all duration-500 ease-out"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
-      {progress > 0 && (
-        <p className="text-right text-sm font-mono mt-1">{progress}%</p>
-      )}
-    </CardContent>
-  </Card>
+  <div className="w-full my-8 glass-card p-6">
+    <h3 className="font-semibold text-lg mb-4">Scraping in Progress...</h3>
+    <p className="text-muted-foreground mb-2">{message}</p>
+    <div className="w-full bg-muted rounded-full h-4">
+      <div
+        className="bg-primary h-4 rounded-full transition-all duration-500 ease-out"
+        style={{ width: `${progress}%` }}
+      ></div>
+    </div>
+    {progress > 0 && (
+      <p className="text-right text-sm font-mono mt-1">{progress}%</p>
+    )}
+  </div>
 );
 
 export default function Home() {
@@ -294,7 +290,7 @@ export default function Home() {
   }
 
   return (
-    <div className="glass-bg min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
+    <div className="glass-container min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
         <title>Attendance Tracker</title>
       </Head>
@@ -302,7 +298,7 @@ export default function Home() {
         <header className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-responsive">
+              <h1 className="text-3xl sm:text-4xl font-bold">
                 <span className="text-primary">Attendance</span> Tracker
               </h1>
               {studentName && (
@@ -368,16 +364,18 @@ export default function Home() {
         )}
 
         <div className="space-y-6 lg:space-y-8">
-          <MonthlyStats
-            attendanceData={attendance}
-            currentDate={currentDate}
-            holidays={holidays}
-          />
+          <div className="glass-card p-6">
+            <MonthlyStats
+              attendanceData={attendance}
+              currentDate={currentDate}
+              holidays={holidays}
+            />
+          </div>
 
-          <Card className="glass-card">
-            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="glass-card">
+            <div className="p-6">
               {lastFetched && (
-                <p className="text-sm order-2 sm:order-1 self-center">
+                <p className="text-sm text-muted-foreground mb-4">
                   Last updated:{" "}
                   <span
                     className={formatRelativeTime(lastFetched, timeNow).color}
@@ -386,22 +384,22 @@ export default function Home() {
                   </span>
                 </p>
               )}
-            </CardHeader>
-            <CardContent>
-              <Calendar
-                attendanceData={attendance}
-                holidays={holidays}
-                currentDate={currentDate}
-                setCurrentDate={setCurrentDate}
-                onCalendarLoading={setCalendarLoading}
-              />
-              {calendarLoading && (
-                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                  <LoadingSpinner text="Loading calendar..." />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <div className="relative">
+                <Calendar
+                  attendanceData={attendance}
+                  holidays={holidays}
+                  currentDate={currentDate}
+                  setCurrentDate={setCurrentDate}
+                  onCalendarLoading={setCalendarLoading}
+                />
+                {calendarLoading && (
+                  <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                    <LoadingSpinner text="Loading calendar..." />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
