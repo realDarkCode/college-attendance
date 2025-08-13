@@ -3,7 +3,7 @@ import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <main className="dark">
+    <main className="dark glass-bg min-h-screen">
       <Head>
         <link
           rel="apple-touch-icon"

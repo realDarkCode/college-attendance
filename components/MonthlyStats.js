@@ -51,22 +51,26 @@ export default function MonthlyStats({
   const totalWorkingDays = stats.present + stats.absent + stats.leave;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <StatCard
-        title="Present Days"
-        value={stats.present}
-        color="text-success"
-      />
-      <StatCard
-        title="Absent Days"
-        value={stats.absent}
-        color="text-destructive"
-      />
-      <StatCard title="Leaves Taken" value={stats.leave} color="text-warning" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <StatCard
         title="Total Working Days"
         value={totalWorkingDays}
         color="text-primary"
+      />
+      <StatCard
+        title="Present Days"
+        value={stats.present}
+        color="text-success-foreground"
+      />
+      <StatCard
+        title="Absent Days"
+        value={stats.absent}
+        color="text-destructive-foreground"
+      />
+      <StatCard
+        title="Leaves Taken"
+        value={stats.leave}
+        color="text-warning-foreground"
       />
     </div>
   );
@@ -74,12 +78,12 @@ export default function MonthlyStats({
 
 function StatCard({ title, value, color, subtitle }) {
   return (
-    <Card className="bg-card-secondary">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="glass-card py-2 gap-0">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className={`text-2xl font-bold ${color}`}>{value}</div>
+      <CardContent className="pb-2 pt-0">
+        <div className={`text-xl font-bold ${color}`}>{value}</div>
         {subtitle && (
           <p className="text-xs text-muted-foreground">{subtitle}</p>
         )}

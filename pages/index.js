@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RefreshCw, Settings } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +9,7 @@ import MonthlyStats from "../components/MonthlyStats";
 
 // A new component for displaying the loading progress
 const LoadingIndicator = ({ progress, message }) => (
-  <Card className="w-full my-8">
+  <Card className="w-full my-8 glass-card">
     <CardHeader>
       <CardTitle>Scraping in Progress...</CardTitle>
     </CardHeader>
@@ -183,7 +184,8 @@ export default function Home() {
   };
 
   const formatRelativeTime = (isoString, now) => {
-    if (!isoString) return { text: "Never fetched", color: "text-red-400" };
+    if (!isoString)
+      return { text: "Never fetched", color: "text-destructive-foreground" };
 
     const date = new Date(isoString);
     const diffInSeconds = Math.floor((now - date) / 1000);
@@ -206,13 +208,13 @@ export default function Home() {
 
     // Determine the color based on time passed
     if (diffInHours <= 2) {
-      color = "text-success"; // Green for recent (0-2 hours)
+      color = "text-success-foreground"; // Green for recent (0-2 hours)
     } else if (diffInHours <= 4) {
-      color = "text-warning"; // Yellow for somewhat old (2-4 hours)
+      color = "text-warning-foreground"; // Yellow for somewhat old (2-4 hours)
     } else if (diffInHours <= 8) {
-      color = "text-orange-400"; // orange for somewhat old (4-8 hours)
+      color = "text-warning-foreground"; // orange for somewhat old (4-8 hours)
     } else {
-      color = "text-destructive"; // Light red for old (>8 hours)
+      color = "text-destructive-foreground"; // Light red for old (>8 hours)
     }
 
     return { text, color };
@@ -241,9 +243,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
+    <div className="glass-bg min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
-        <title>College Attendance Tracker</title>
+        <title>Attendance Tracker</title>
       </Head>
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
@@ -261,7 +263,13 @@ export default function Home() {
             </div>
             <div className="flex gap-4">
               <Link href="/settings" passHref>
-                <Button variant="outline">Settings</Button>
+                <Button
+                  variant="outline"
+                  className="bg-muted/30 backdrop-blur-sm"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Button>
               </Link>
             </div>
           </div>
@@ -271,8 +279,8 @@ export default function Home() {
           <div
             className={`p-4 mb-6 text-sm rounded-lg flex justify-between items-center ${
               uiMessage.type === "error"
-                ? "bg-destructive/10 text-destructive"
-                : "bg-success/10 text-success"
+                ? "bg-destructive/10 text-destructive-foreground"
+                : "bg-success/10 text-success-foreground"
             }`}
           >
             <span>{uiMessage.text}</span>
@@ -297,7 +305,7 @@ export default function Home() {
           holidays={holidays}
         />
 
-        <Card className="mt-8 bg-card-secondary">
+        <Card className="mt-8 glass-card">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {lastFetched && (
               <p className="text-sm order-2 sm:order-1 self-center">
@@ -311,6 +319,9 @@ export default function Home() {
             )}
             <div className="flex justify-end w-full sm:w-auto order-1 sm:order-2">
               <Button onClick={handleScrape} disabled={isScraping}>
+                <RefreshCw
+                  className={`mr-2 h-4 w-4 ${isScraping ? "animate-spin" : ""}`}
+                />
                 {isScraping ? "Updating..." : "Update Latest Attendance"}
               </Button>
             </div>

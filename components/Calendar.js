@@ -5,7 +5,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
+
+const getStatusIcon = (status) => {
+  switch (status) {
+    case "Error":
+      return <AlertTriangle className="size-5 " />;
+
+    default:
+      return null;
+  }
+};
 
 const CalendarTooltip = ({ entry, holidayInfo, children }) => {
   if (!entry && !holidayInfo) return <>{children}</>;
@@ -14,25 +25,31 @@ const CalendarTooltip = ({ entry, holidayInfo, children }) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>
-          {holidayInfo && <p className="font-bold">{holidayInfo.name}</p>}
+        <TooltipContent className="bg-popover border-border backdrop-blur-md text-popover-foreground">
+          {holidayInfo && (
+            <p className="font-bold text-popover-foreground">
+              {holidayInfo.name}
+            </p>
+          )}
           {entry && holidayInfo && <hr className="my-1 border-border" />}
           {entry && (
             <>
-              <p className="font-bold">{entry.date}</p>
-              <p>
+              <p className="font-bold text-popover-foreground">{entry.date}</p>
+              <p className="text-popover-foreground">
                 Status:{" "}
                 <span
                   className={`font-semibold ${
                     entry.dayStatus === "Present"
-                      ? "text-success"
+                      ? "text-success-foreground"
                       : entry.dayStatus === "Absent"
-                      ? "text-destructive"
+                      ? "text-destructive-foreground"
                       : entry.dayStatus === "Leave"
-                      ? "text-warning"
+                      ? "text-warning-foreground"
                       : entry.dayStatus === "Error"
-                      ? "text-destructive"
-                      : "text-muted-foreground"
+                      ? "text-destructive-foreground"
+                      : entry.dayStatus === "No Change"
+                      ? "text-popover-foreground"
+                      : "text-popover"
                   }`}
                 >
                   {entry.dayStatus}
@@ -41,38 +58,38 @@ const CalendarTooltip = ({ entry, holidayInfo, children }) => {
               <hr className="my-1 border-border" />
               {entry.data ? (
                 <>
-                  <p>
+                  <p className="text-popover-foreground">
                     Working Days:{" "}
-                    <span className="font-semibold text-muted-foreground">
+                    <span className="font-medium text-popover-foreground">
                       {entry.data.workingDays}
                     </span>
                   </p>
-                  <p>
+                  <p className="text-popover-foreground">
                     Present:{" "}
-                    <span className="font-semibold text-muted-foreground">
+                    <span className="font-medium text-popover-foreground">
                       {entry.data.present}
                     </span>
                   </p>
-                  <p>
+                  <p className="text-popover-foreground">
                     Absent:{" "}
-                    <span className="font-semibold text-muted-foreground">
+                    <span className="font-medium text-popover-foreground">
                       {entry.data.absent}
                     </span>
                   </p>
-                  <p>
+                  <p className="text-popover-foreground">
                     Leave:{" "}
-                    <span className="font-semibold text-muted-foreground">
+                    <span className="font-medium text-popover-foreground">
                       {entry.data.leave}
                     </span>
                   </p>
                 </>
               ) : entry.dayStatus === "Error" && entry.error ? (
-                <div className="text-destructive">
+                <div className="text-destructive-foreground">
                   <p className="font-semibold">Error Details:</p>
                   <p className="text-xs mt-1">{entry.error}</p>
                 </div>
               ) : (
-                <p className="text-destructive">
+                <p className="text-destructive-foreground">
                   Data unavailable due to error
                 </p>
               )}
@@ -125,29 +142,29 @@ export default function Calendar({
   const getStatusColor = (status) => {
     switch (status) {
       case "Present":
-        return "bg-success/50 border border-success";
+        return "attendance-present backdrop-blur-md";
       case "Absent":
-        return "bg-destructive/50 border border-destructive";
+        return "attendance-absent backdrop-blur-md";
       case "Leave":
-        return "bg-warning/50 border border-warning";
+        return "attendance-leave backdrop-blur-md";
       case "Error":
-        return "bg-destructive/50 border border-destructive";
+        return "attendance-error backdrop-blur-md";
       case "No Change":
-        return "bg-accent/50 border border-accent-foreground";
+        return "attendance-no-change backdrop-blur-md";
       case "Unavailable":
-        return "bg-muted/5 border border-muted-foreground";
+        return "attendance-unavailable backdrop-blur-sm";
       case "Holiday":
-        return "bg-muted/40 border border-muted-foreground";
+        return "attendance-holiday backdrop-blur-md";
       default:
-        return "border-transparent";
+        return "border-border/20 backdrop-blur-sm hover:bg-muted/25";
     }
   };
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <Button variant="outline" size="icon" onClick={() => changeMonth(-1)}>
-          &lt;
+          <ChevronLeft className="size-5" />
         </Button>
         <CardTitle className="text-xl sm:text-2xl font-semibold text-center">
           {currentDate.toLocaleString("default", {
@@ -156,7 +173,7 @@ export default function Calendar({
           })}
         </CardTitle>
         <Button variant="outline" size="icon" onClick={() => changeMonth(1)}>
-          &gt;
+          <ChevronRight className="size-5" />
         </Button>
       </CardHeader>
       <CardContent>
@@ -166,7 +183,7 @@ export default function Calendar({
               key={day}
               className="font-bold text-primary text-xs sm:text-base"
             >
-              <span className="hidden sm:inline">{day}</span>
+              <span className="hidden sm:inline ">{day}</span>
               <span className="sm:hidden">{day.charAt(0)}</span>
             </div>
           ))}
@@ -209,9 +226,9 @@ export default function Calendar({
               currentDate.getFullYear() === today.getFullYear();
 
             const dayClasses = [
-              "w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-colors text-sm sm:text-base",
+              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all duration-200 text-sm sm:text-base cursor-pointer hover:scale-105 ",
               getStatusColor(status),
-              isToday ? "border-2 border-primary" : "border",
+              isToday ? "ring-2 ring-primary shadow-md shadow-primary" : "",
             ];
 
             return (
@@ -226,7 +243,16 @@ export default function Calendar({
                     : null
                 }
               >
-                <div className={dayClasses.join(" ")}>{day}</div>
+                <div className={dayClasses.join(" ")}>
+                  <div className="flex items-center justify-center gap-1">
+                    {(status === "Error" || status === "No Change") &&
+                      getStatusIcon(status)}
+                    <span>{day}</span>
+                    {status !== "Error" &&
+                      status !== "No Change" &&
+                      getStatusIcon(status)}
+                  </div>
+                </div>
               </CalendarTooltip>
             );
           })}
