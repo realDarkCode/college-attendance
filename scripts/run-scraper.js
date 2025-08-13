@@ -1,17 +1,19 @@
 const fs = require("fs");
 const path = require("path");
 const { scrapeAttendance } = require("../lib/scraper");
+const {
+  getDayStatusFromData,
+  getTodayDateString,
+} = require("../lib/serverUtils");
 
-const attendanceFilePath = path.join(
-  __dirname,
-  "..",
-  "data",
-  "attendance.json"
-);
-
-// --- Helper Functions (from API routes) ---
-
-const readAttendanceData = () => {
+// Convert async utility functions to sync for this script
+const readAttendanceDataSync = () => {
+  const attendanceFilePath = path.join(
+    __dirname,
+    "..",
+    "data",
+    "attendance.json"
+  );
   if (!fs.existsSync(attendanceFilePath)) {
     return [];
   }
@@ -19,25 +21,18 @@ const readAttendanceData = () => {
   return JSON.parse(fileContent);
 };
 
-const writeAttendanceData = (data) => {
+const writeAttendanceDataSync = (data) => {
+  const attendanceFilePath = path.join(
+    __dirname,
+    "..",
+    "data",
+    "attendance.json"
+  );
   fs.writeFileSync(attendanceFilePath, JSON.stringify(data, null, 2));
 };
 
-const getTodayDateString = () => {
-  // Use the same timezone-aware logic as the main scraper
-  const now = new Date();
-  const options = {
-    timeZone: 'Asia/Dhaka', // Corresponds to +06:00 timezone
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  };
-  // 'en-CA' locale formats the date as YYYY-MM-DD
-  return new Intl.DateTimeFormat('en-CA', options).format(now);
-};
-
-const wasScrapedToday = () => {
-  const attendance = readAttendanceData();
+const wasScrapedTodaySync = () => {
+  const attendance = readAttendanceDataSync();
   const todayStr = getTodayDateString();
   return attendance.some((entry) => entry.date === todayStr);
 };
@@ -58,7 +53,7 @@ const run = async () => {
     "Checking if scraping is needed for today..."
   );
 
-  if (wasScrapedToday()) {
+  if (wasScrapedTodaySync()) {
     console.log(
       new Date().toLocaleDateString(),
       "Already scraped today. Exiting."
@@ -80,24 +75,29 @@ const run = async () => {
       return;
     }
 
-    const attendance = readAttendanceData();
-    const previousEntry =
-      attendance.length > 0 ? attendance[attendance.length - 1] : null;
+    const attendance = readAttendanceDataSync();
+
+    // Use the utility function to determine day status if not already set
+    let dayStatus;
+    if (scrapedData.dayStatus) {
+      dayStatus = scrapedData.dayStatus;
+    } else {
+      dayStatus = getDayStatusFromData(scrapedData, attendance);
+    }
 
     // Use the date returned from the scraper to ensure consistency
     const newEntry = {
       date: scrapedData.date, // Use the timezone-correct date from the scraper
       name: scrapedData.name,
       data: scrapedData.data,
-      dayStatus: getDayStatus(
-        scrapedData.data,
-        previousEntry ? previousEntry.data : null
-      ),
+      dayStatus: dayStatus,
       fetchedAt: new Date().toISOString(), // UTC timestamp for when it was fetched
+      notificationSent: scrapedData.notificationSent || false,
+      notificationSentAt: scrapedData.notificationSentAt || null,
     };
 
     attendance.push(newEntry);
-    writeAttendanceData(attendance);
+    writeAttendanceDataSync(attendance);
 
     console.log(
       new Date().toLocaleDateString(),

@@ -2,6 +2,11 @@ import MonthlyStats from "@/components/MonthlyStats";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoadingSpinner, SkeletonLoader } from "@/components/ui/loading";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { RefreshCw, Settings } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
@@ -42,6 +47,10 @@ export default function Home() {
   const [lastFetched, setLastFetched] = useState(null);
   const [timeNow, setTimeNow] = useState(Date.now());
   const [autoFetchAttempted, setAutoFetchAttempted] = useState(false);
+  const [preferences, setPreferences] = useState({
+    calendarOnly: false,
+    notifications: true,
+  });
 
   const pollingInterval = useRef(null);
 
@@ -85,7 +94,12 @@ export default function Home() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        await Promise.all([fetchAttendance(), fetchStatus(), fetchHolidays()]);
+        await Promise.all([
+          fetchAttendance(),
+          fetchStatus(),
+          fetchHolidays(),
+          fetchPreferences(),
+        ]);
 
         // After initial data is loaded, check if we need to auto-fetch
         if (
@@ -148,6 +162,21 @@ export default function Home() {
       setHolidays(data);
     } catch (error) {
       console.error("Failed to fetch holidays", error);
+    }
+  };
+
+  const fetchPreferences = async () => {
+    try {
+      const res = await fetch("/api/config");
+      if (!res.ok) throw new Error("Failed to fetch preferences");
+      const data = await res.json();
+      setPreferences({
+        calendarOnly: data.calendarOnly || false,
+        notifications:
+          data.notifications !== undefined ? data.notifications : true,
+      });
+    } catch (error) {
+      console.error("Failed to fetch preferences", error);
     }
   };
 
@@ -314,42 +343,71 @@ export default function Home() {
                   Settings
                 </Button>
               </Link>
-              <Button
-                onClick={handleScrape}
-                disabled={isScraping}
-                className="w-full sm:w-auto"
-              >
-                {isScraping ? (
-                  <LoadingSpinner size="sm" text="Scraping..." />
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Update Now
-                  </>
-                )}
-              </Button>
+              {preferences.calendarOnly && lastFetched ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleScrape}
+                      disabled={isScraping}
+                      className="w-full sm:w-auto"
+                    >
+                      {isScraping ? (
+                        <LoadingSpinner size="sm" text="Scraping..." />
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Update Now
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Last updated:{" "}
+                      {formatRelativeTime(lastFetched, timeNow).text}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  onClick={handleScrape}
+                  disabled={isScraping}
+                  className="w-full sm:w-auto"
+                >
+                  {isScraping ? (
+                    <LoadingSpinner size="sm" text="Scraping..." />
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Update Now
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
-          <div className="flex w-full justify-between px-2 my-4 items-center">
-            {studentName && (
-              <p className="text-base sm:text-lg text-muted-foreground">
-                Name:{" "}
-                <span className="text-foreground font-medium">
-                  {studentName}
-                </span>
-              </p>
-            )}
-            {lastFetched && (
-              <p className="text-base   text-muted-foreground">
-                Last updated:{" "}
-                <span
-                  className={formatRelativeTime(lastFetched, timeNow).color}
-                >
-                  {formatRelativeTime(lastFetched, timeNow).text}
-                </span>
-              </p>
-            )}
-          </div>
+          {!preferences.calendarOnly && (
+            <div className="flex w-full justify-between px-2 my-4 items-center">
+              {studentName && (
+                <p className="text-base sm:text-lg text-muted-foreground">
+                  Name:{" "}
+                  <span className="text-foreground font-medium">
+                    {studentName}
+                  </span>
+                </p>
+              )}
+              {lastFetched && (
+                <p className="text-base   text-muted-foreground">
+                  Last updated:{" "}
+                  <span
+                    className={formatRelativeTime(lastFetched, timeNow).color}
+                  >
+                    {formatRelativeTime(lastFetched, timeNow).text}
+                  </span>
+                </p>
+              )}
+            </div>
+          )}
         </header>
 
         {uiMessage.text && (
@@ -377,13 +435,15 @@ export default function Home() {
         )}
 
         <div className="space-y-6 lg:space-y-8">
-          <div className="glass-card p-6">
-            <MonthlyStats
-              attendanceData={attendance}
-              currentDate={currentDate}
-              holidays={holidays}
-            />
-          </div>
+          {!preferences.calendarOnly && (
+            <div className="glass-card p-6">
+              <MonthlyStats
+                attendanceData={attendance}
+                currentDate={currentDate}
+                holidays={holidays}
+              />
+            </div>
+          )}
           <div className="glass-card">
             <div className="p-6">
               <div className="relative">

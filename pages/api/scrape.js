@@ -1,8 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
 import { scrapeAttendance } from "../../lib/scraper";
+import { readAttendanceData, writeAttendanceData } from "../../lib/serverUtils";
+import { getDayStatusFromData, getTodayDateString } from "../../lib/utils";
 
-// Define the path for the data file
+// Define the path for the data file - keeping for directory creation
 const dataFilePath = path.join(process.cwd(), "data", "attendance.json");
 
 // Helper function to ensure the data directory exists
@@ -36,27 +38,12 @@ export default async function handler(req, res) {
       );
 
       // Get the current date for error entry
-      const now = new Date();
-      const options = {
-        timeZone: "Asia/Dhaka",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      };
-      const dateString = new Intl.DateTimeFormat("en-CA", options).format(now);
+      const dateString = getTodayDateString();
 
       await ensureDirectoryExists(dataFilePath);
 
       // Read existing data
-      let allData = [];
-      try {
-        const fileContent = await fs.readFile(dataFilePath, "utf-8");
-        allData = JSON.parse(fileContent);
-      } catch (error) {
-        if (error.code !== "ENOENT") {
-          throw error;
-        }
-      }
+      let allData = await readAttendanceData();
 
       // Create error entry with specific error message
       const errorEntry = {
@@ -81,9 +68,8 @@ export default async function handler(req, res) {
         console.log(`API: Added new error entry for date: ${dateString}`);
       }
 
-      // Write the updated data back to the file
-      await fs.writeFile(dataFilePath, JSON.stringify(allData, null, 2));
-
+      // Write updated data back to file
+      await writeAttendanceData(allData);
       return res.status(500).json({
         success: false,
         message: `Scraping failed: ${scrapedData?.error || "Unknown error"}`,
@@ -102,50 +88,17 @@ export default async function handler(req, res) {
 
     await ensureDirectoryExists(dataFilePath);
 
-    // Read existing data
-    let allData = [];
-    try {
-      const fileContent = await fs.readFile(dataFilePath, "utf-8");
-      allData = JSON.parse(fileContent);
-    } catch (error) {
-      // If the file doesn't exist or is empty, start with an empty array
-      if (error.code !== "ENOENT") {
-        throw error; // Rethrow other errors
-      }
-    }
+    // Read existing data using utility
+    let allData = await readAttendanceData();
 
-    // Sort data by date to ensure it's in chronological order
-    allData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // Find the last entry that is NOT from the same day as the current scrape
-    const previousDayEntries = allData.filter(
-      (entry) => entry.date < scrapedData.date
-    );
-    const previousEntry =
-      previousDayEntries.length > 0
-        ? previousDayEntries[previousDayEntries.length - 1]
-        : null;
-
-    // Determine the status for the current day by comparing with the previous day
-    let dayStatus = "No Change"; // Default to 'No Change'
-    if (previousEntry && previousEntry.data) {
-      // Prioritize checking for absence or leave first
-      if (scrapedData.data.absent > previousEntry.data.absent) {
-        dayStatus = "Absent";
-      } else if (scrapedData.data.leave > previousEntry.data.leave) {
-        dayStatus = "Leave";
-      } else if (scrapedData.data.present > previousEntry.data.present) {
-        dayStatus = "Present";
-      }
+    // Determine the day status using utility function
+    let dayStatus = "No Change";
+    if (!scrapedData.dayStatus) {
+      // If dayStatus wasn't set by scraper (e.g., notifications disabled), calculate it
+      dayStatus = getDayStatusFromData(scrapedData, allData);
     } else {
-      // This is the first ever scrape or previous entry has no data. Set a baseline status.
-      if (scrapedData.data.present > 0) {
-        dayStatus = "Present";
-      } else if (scrapedData.data.absent > 0) {
-        dayStatus = "Absent";
-      } else {
-        dayStatus = "Initial Data";
-      }
+      // Use the dayStatus from scraper
+      dayStatus = scrapedData.dayStatus;
     }
 
     // Add the calculated status to the scraped data
@@ -171,8 +124,8 @@ export default async function handler(req, res) {
       );
     }
 
-    // Write the updated data back to the file
-    await fs.writeFile(dataFilePath, JSON.stringify(allData, null, 2));
+    // Write the updated data back to the file using utility
+    await writeAttendanceData(allData);
     console.log("API: Data successfully saved to", dataFilePath);
 
     res.status(200).json({

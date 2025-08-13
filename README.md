@@ -64,7 +64,7 @@ npm install
 **3. Set up data files:**
 The application uses local JSON files for data persistence. Create a `data` directory in the project root and add the following files:
 
-- `credentials.json`: Stores login credentials.
+- `config.json`: Stores login credentials and user preferences.
   ```json
   { "username": "YOUR_USERNAME", "password": "YOUR_PASSWORD" }
   ```

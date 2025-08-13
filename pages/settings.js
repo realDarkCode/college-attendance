@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   AlertCircle,
+  Bell,
   CalendarDays,
   CodeXml,
   Eye,
@@ -15,6 +17,7 @@ import {
   HeartIcon,
   Home,
   Save,
+  ShieldUser,
   Trash2,
   UserCog,
 } from "lucide-react";
@@ -25,9 +28,11 @@ import { useEffect, useState } from "react";
 export default function Settings() {
   const [holidays, setHolidays] = useState([]);
   const [message, setMessage] = useState("");
-  const [credentials, setCredentials] = useState({
+  const [config, setConfig] = useState({
     username: "",
     password: "",
+    calendarOnly: false,
+    notifications: true,
   });
   const [credMessage, setCredMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -38,7 +43,7 @@ export default function Settings() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchHolidays(), fetchCredentials()]);
+      await Promise.all([fetchHolidays(), fetchConfig()]);
       setLoading(false);
     };
     loadData();
@@ -47,15 +52,15 @@ export default function Settings() {
   const validateCredentials = () => {
     const newErrors = {};
 
-    if (!credentials.username.trim()) {
+    if (!config.username.trim()) {
       newErrors.username = "Username is required";
-    } else if (credentials.username.length < 3) {
+    } else if (config.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
     }
 
-    if (!credentials.password.trim()) {
+    if (!config.password.trim()) {
       newErrors.password = "Password is required";
-    } else if (credentials.password.length < 6) {
+    } else if (config.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
 
@@ -63,12 +68,12 @@ export default function Settings() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const fetchCredentials = async () => {
+  const fetchConfig = async () => {
     try {
-      const res = await fetch("/api/credentials");
-      if (!res.ok) throw new Error("Failed to fetch credentials");
+      const res = await fetch("/api/config");
+      if (!res.ok) throw new Error("Failed to fetch configuration");
       const data = await res.json();
-      setCredentials(data);
+      setConfig(data);
     } catch (error) {
       console.error(error);
       setCredMessage(error.message);
@@ -256,15 +261,15 @@ export default function Settings() {
     setErrors({}); // Clear any previous errors
 
     try {
-      const res = await fetch("/api/credentials", {
+      const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(config),
       });
       const result = await res.json();
       setCredMessage(result.message);
     } catch (error) {
-      setCredMessage("Failed to update credentials.");
+      setCredMessage("Failed to update configuration.");
     } finally {
       setUpdating(false);
     }
@@ -343,114 +348,180 @@ export default function Settings() {
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <UserCog className="h-5 w-5 text-primary" />
-                User Credentials
+                <ShieldUser className="h-5 w-5 text-primary" />
+                Login Credentials
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleUpdateCredentials} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={credentials.username}
-                    onChange={(e) => {
-                      setCredentials({
-                        ...credentials,
-                        username: e.target.value,
-                      });
-                      // Clear error when user starts typing
-                      if (errors.username) {
-                        setErrors({ ...errors, username: "" });
-                      }
-                    }}
-                    placeholder="Enter your username"
-                    disabled={updating}
-                    className={errors.username ? "border-red-500" : ""}
-                  />
-                  {errors.username && (
-                    <div className="flex items-center gap-1 text-sm text-red-500">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.username}
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={passwordVisible ? "text" : "password"}
-                      value={credentials.password}
-                      onChange={(e) => {
-                        setCredentials({
-                          ...credentials,
-                          password: e.target.value,
-                        });
-                        // Clear error when user starts typing
-                        if (errors.password) {
-                          setErrors({ ...errors, password: "" });
+              <form onSubmit={handleUpdateCredentials} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        value={config.username}
+                        onChange={(e) => {
+                          setConfig({
+                            ...config,
+                            username: e.target.value,
+                          });
+                          // Clear error when user starts typing
+                          if (errors.username) {
+                            setErrors({ ...errors, username: "" });
+                          }
+                        }}
+                        placeholder="Enter your username"
+                        disabled={updating}
+                        className={
+                          errors.username ? "border-destructive-foreground" : ""
                         }
-                      }}
-                      placeholder="Enter your password"
-                      disabled={updating}
-                      className={errors.password ? "border-red-500" : ""}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setPasswordVisible(!passwordVisible)}
-                      className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      disabled={updating}
-                    >
-                      {passwordVisible ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
+                      />
+                      {errors.username && (
+                        <div className="flex items-center gap-1 text-sm text-destructive-foreground border-destructive-foreground">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.username}
+                        </div>
                       )}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <div className="flex items-center gap-1 text-sm text-red-500">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.password}
                     </div>
-                  )}
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={passwordVisible ? "text" : "password"}
+                          value={config.password}
+                          onChange={(e) => {
+                            setConfig({
+                              ...config,
+                              password: e.target.value,
+                            });
+                            // Clear error when user starts typing
+                            if (errors.password) {
+                              setErrors({ ...errors, password: "" });
+                            }
+                          }}
+                          placeholder="Enter your password"
+                          disabled={updating}
+                          className={
+                            errors.password
+                              ? "border-destructive-foreground"
+                              : ""
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPasswordVisible(!passwordVisible)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          disabled={updating}
+                        >
+                          {passwordVisible ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <div className="flex items-center gap-1 text-sm text-destructive-foreborder-destructive-foreground">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.password}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <Button type="submit" disabled={updating}>
+                      <Save className="mr-2 h-4 w-4" />
+                      {updating ? "Saving..." : "Save credential"}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={updating}>
-                    <Save className="mr-2 h-4 w-4" />
-                    {updating ? "Saving..." : "Save Credentials"}
-                  </Button>
+
+                {credMessage && (
+                  <p className="mt-4 text-sm text-center text-muted-foreground">
+                    {credMessage}
+                  </p>
+                )}
+                <Separator className="my-6 bg-border/50" />
+
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium flex items-center gap-2">
+                    <UserCog className="h-5 w-5 text-primary" />
+                    User Preferences
+                  </h3>
+
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="calendar-only"
+                          className="text-base font-medium"
+                        >
+                          Calendar Only
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Hide monthly stats and user info, show only the
+                          calendar
+                        </p>
+                      </div>
+                      <Switch
+                        id="calendar-only"
+                        checked={config.calendarOnly}
+                        onCheckedChange={(checked) =>
+                          setConfig({
+                            ...config,
+                            calendarOnly: checked,
+                          })
+                        }
+                        disabled={updating}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="notifications"
+                          className="flex items-center gap-2 text-base font-medium"
+                        >
+                          <Bell className="h-4 w-4" />
+                          Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable system notifications
+                        </p>
+                      </div>
+                      <Switch
+                        id="notifications"
+                        checked={config.notifications}
+                        onCheckedChange={(checked) =>
+                          setConfig({
+                            ...config,
+                            notifications: checked,
+                          })
+                        }
+                        disabled={updating}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="theme-toggle"
+                          className="text-base font-medium"
+                        >
+                          Theme
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Choose your preferred color theme
+                        </p>
+                      </div>
+                      <ThemeToggle />
+                    </div>
+                  </div>
                 </div>
               </form>
-              {credMessage && (
-                <p className="mt-4 text-sm text-center text-muted-foreground">
-                  {credMessage}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserCog className="h-5 w-5 text-primary" />
-                Theme Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="theme-toggle">Choose Theme</Label>
-                  <div id="theme-toggle" className="flex justify-start">
-                    <ThemeToggle />
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Select your preferred theme for the application
-                  </p>
-                </div>
-              </div>
             </CardContent>
           </Card>
 

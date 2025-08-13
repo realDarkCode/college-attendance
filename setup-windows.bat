@@ -45,7 +45,7 @@ echo [4/6] Setting up data files...
 if not exist "data" mkdir data
 if not exist "data\attendance.json" echo [] > data\attendance.json
 if not exist "data\holidays.json" echo [] > data\holidays.json
-if not exist "data\credentials.json" echo {"username":"","password":""} > data\credentials.json
+if not exist "data\config.json" echo {"username":"","password":"","calendarOnly":false,"notifications":true} > data\config.json
 if not exist "data\scrape-status.json" echo {"lastRun":"","status":"idle","progress":0} > data\scrape-status.json
 echo ✓ Data files created
 
