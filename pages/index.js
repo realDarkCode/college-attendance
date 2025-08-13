@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingSpinner, SkeletonLoader } from "@/components/ui/loading";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RefreshCw, Settings } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
@@ -34,6 +36,8 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [studentName, setStudentName] = useState("");
   const [holidays, setHolidays] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [calendarLoading, setCalendarLoading] = useState(false);
 
   // New state for scraping progress
   const [isScraping, setIsScraping] = useState(false);
@@ -84,20 +88,23 @@ export default function Home() {
   // Initial data fetch
   useEffect(() => {
     const fetchInitialData = async () => {
-      await fetchAttendance();
-      await fetchStatus();
-      await fetchHolidays();
+      setLoading(true);
+      try {
+        await Promise.all([fetchAttendance(), fetchStatus(), fetchHolidays()]);
 
-      // After initial data is loaded, check if we need to auto-fetch
-      if (
-        lastFetched &&
-        shouldAutoFetch(lastFetched) &&
-        !isScraping &&
-        !autoFetchAttempted
-      ) {
-        console.log("Initial auto-fetch triggered");
-        handleScrape();
-        setAutoFetchAttempted(true);
+        // After initial data is loaded, check if we need to auto-fetch
+        if (
+          lastFetched &&
+          shouldAutoFetch(lastFetched) &&
+          !isScraping &&
+          !autoFetchAttempted
+        ) {
+          console.log("Initial auto-fetch triggered");
+          handleScrape();
+          setAutoFetchAttempted(true);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -242,35 +249,96 @@ export default function Home() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="glass-bg min-h-screen text-foreground p-4 sm:p-6 md:p-8">
+        <Head>
+          <title>Attendance Tracker</title>
+        </Head>
+        <div className="max-w-4xl mx-auto page-transition">
+          <header className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+              <div>
+                <SkeletonLoader className="h-10 w-64 mb-4" />
+                <SkeletonLoader className="h-6 w-48" />
+              </div>
+              <div className="flex gap-4">
+                <SkeletonLoader className="h-10 w-24" />
+                <SkeletonLoader className="h-10 w-32" />
+              </div>
+            </div>
+          </header>
+
+          <div className="space-y-8">
+            <Card className="glass-card">
+              <CardHeader>
+                <SkeletonLoader className="h-6 w-40" />
+              </CardHeader>
+              <CardContent>
+                <SkeletonLoader className="h-32 w-full" />
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardHeader>
+                <SkeletonLoader className="h-6 w-32" />
+              </CardHeader>
+              <CardContent>
+                <SkeletonLoader className="h-80 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="glass-bg min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
         <title>Attendance Tracker</title>
       </Head>
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
+      <div className="max-w-4xl mx-auto page-transition">
+        <header className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-4xl font-bold">
+              <h1 className="text-3xl sm:text-4xl font-bold text-responsive">
                 <span className="text-primary">Attendance</span> Tracker
               </h1>
               {studentName && (
-                <p className="text-lg text-muted-foreground mt-4">
+                <p className="text-base sm:text-lg text-muted-foreground mt-2 lg:mt-4">
                   Student Name:{" "}
-                  <span className="text-foreground">{studentName}</span>
+                  <span className="text-foreground font-medium">
+                    {studentName}
+                  </span>
                 </p>
               )}
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+              <ThemeToggle />
               <Link href="/settings" passHref>
                 <Button
                   variant="outline"
-                  className="bg-muted/30 backdrop-blur-sm"
+                  className="bg-muted/30 backdrop-blur-sm w-full sm:w-auto"
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </Button>
               </Link>
+              <Button
+                onClick={handleScrape}
+                disabled={isScraping}
+                className="w-full sm:w-auto"
+              >
+                {isScraping ? (
+                  <LoadingSpinner size="sm" text="Scraping..." />
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Update Now
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </header>
@@ -299,42 +367,42 @@ export default function Home() {
           <LoadingIndicator progress={scrapeProgress} message={scrapeMessage} />
         )}
 
-        <MonthlyStats
-          attendanceData={attendance}
-          currentDate={currentDate}
-          holidays={holidays}
-        />
+        <div className="space-y-6 lg:space-y-8">
+          <MonthlyStats
+            attendanceData={attendance}
+            currentDate={currentDate}
+            holidays={holidays}
+          />
 
-        <Card className="mt-8 glass-card">
-          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {lastFetched && (
-              <p className="text-sm order-2 sm:order-1 self-center">
-                Last updated:{" "}
-                <span
-                  className={formatRelativeTime(lastFetched, timeNow).color}
-                >
-                  {formatRelativeTime(lastFetched, timeNow).text}
-                </span>
-              </p>
-            )}
-            <div className="flex justify-end w-full sm:w-auto order-1 sm:order-2">
-              <Button onClick={handleScrape} disabled={isScraping}>
-                <RefreshCw
-                  className={`mr-2 h-4 w-4 ${isScraping ? "animate-spin" : ""}`}
-                />
-                {isScraping ? "Updating..." : "Update Latest Attendance"}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Calendar
-              attendanceData={attendance}
-              holidays={holidays}
-              currentDate={currentDate}
-              setCurrentDate={setCurrentDate}
-            />
-          </CardContent>
-        </Card>
+          <Card className="glass-card">
+            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              {lastFetched && (
+                <p className="text-sm order-2 sm:order-1 self-center">
+                  Last updated:{" "}
+                  <span
+                    className={formatRelativeTime(lastFetched, timeNow).color}
+                  >
+                    {formatRelativeTime(lastFetched, timeNow).text}
+                  </span>
+                </p>
+              )}
+            </CardHeader>
+            <CardContent>
+              <Calendar
+                attendanceData={attendance}
+                holidays={holidays}
+                currentDate={currentDate}
+                setCurrentDate={setCurrentDate}
+                onCalendarLoading={setCalendarLoading}
+              />
+              {calendarLoading && (
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                  <LoadingSpinner text="Loading calendar..." />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

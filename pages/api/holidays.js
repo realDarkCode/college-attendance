@@ -20,7 +20,7 @@ export default function handler(req, res) {
     const holidays = readHolidays();
     res.status(200).json(holidays);
   } else if (req.method === 'POST') {
-    const { date, name } = req.body;
+    const { date, name, isRange, rangeId, totalDays } = req.body;
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !name) {
       return res.status(400).json({ message: 'Invalid input. Date (YYYY-MM-DD) and name are required.' });
     }
@@ -28,7 +28,16 @@ export default function handler(req, res) {
     if (holidays.some(h => h.date === date)) {
         return res.status(409).json({ message: 'A holiday for this date already exists.' });
     }
-    holidays.push({ date, name });
+    
+    // Create holiday object with range metadata if provided
+    const holiday = { date, name };
+    if (isRange && rangeId) {
+      holiday.isRange = isRange;
+      holiday.rangeId = rangeId;
+      holiday.totalDays = totalDays;
+    }
+    
+    holidays.push(holiday);
     holidays.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
     writeHolidays(holidays);
     res.status(201).json({ message: 'Holiday added successfully.', holidays });

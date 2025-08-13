@@ -100,6 +100,55 @@
 }
 
 .dark {
+  /* Dark Theme */
+  --background: linear-gradient(
+    135deg,
+    rgba(10, 10, 20, 0.98),
+    rgba(15, 15, 30, 0.95)
+  );
+  --background-base: oklch(0.05 0.01 240);
+  --foreground: oklch(0.94 0.01 240);
+  --card: rgba(20, 20, 40, 0.8);
+  --card-backdrop: blur(28px);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-foreground: oklch(0.94 0.01 240);
+  --card-secondary: rgba(15, 15, 30, 0.7);
+  --card-secondary-foreground: oklch(0.9 0.01 240);
+  --popover: rgba(20, 20, 40, 0.9);
+  --popover-foreground: oklch(0.94 0.01 240);
+  --primary: oklch(0.65 0.25 270);
+  --primary-foreground: oklch(0.05 0 0);
+  --secondary: rgba(35, 35, 55, 0.7);
+  --secondary-foreground: oklch(0.9 0.01 240);
+  --muted: rgba(25, 25, 45, 0.6);
+  --muted-foreground: oklch(0.6 0.01 240);
+  --accent: rgba(147, 51, 234, 0.5);
+  --accent-foreground: oklch(0.94 0.01 240);
+  --destructive: rgba(239, 68, 68, 0.4);
+  --destructive-foreground: rgb(248, 113, 113);
+  --success: rgba(34, 197, 94, 0.4);
+  --success-foreground: rgb(74, 222, 128);
+  --warning: rgba(234, 179, 8, 0.4);
+  --warning-foreground: rgb(250, 204, 21);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(30, 30, 55, 0.8);
+  --ring: oklch(0.65 0.25 270);
+  --chart-1: oklch(0.746 0.222 41.116);
+  --chart-2: oklch(0.7 0.118 184.704);
+  --chart-3: oklch(0.498 0.07 227.392);
+  --chart-4: oklch(0.928 0.189 84.429);
+  --chart-5: oklch(0.869 0.188 70.08);
+  --sidebar: rgba(20, 20, 35, 0.8);
+  --sidebar-foreground: oklch(0.88 0.01 240);
+  --sidebar-primary: oklch(0.65 0.25 270);
+  --sidebar-primary-foreground: oklch(0.05 0 0);
+  --sidebar-accent: rgba(40, 40, 60, 0.6);
+  --sidebar-accent-foreground: oklch(0.88 0.01 240);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: oklch(0.65 0.25 270);
+}
+
+.dark {
   --background: linear-gradient(
     135deg,
     oklch(0.14 0 89.88 / 0.92),
@@ -130,7 +179,7 @@
   --warning: oklch(0.8 0.16 86.05 / 0.3);
   --warning-foreground: oklch(0.86 0.17 91.94);
   --border: oklch(1 0 89.88 / 0.15);
-  --input: oklch(1 0 89.88 / 0.1);
+  --input: oklch(0.15 0.01 240 / 0.8);
   --ring: oklch(0.7 0.2 280);
 }
 
@@ -172,6 +221,24 @@ body {
     );
   pointer-events: none;
   z-index: -1;
+}
+
+.dark .glass-bg::before {
+  background: radial-gradient(
+      circle at 20% 80%,
+      rgba(147, 51, 234, 0.2) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(59, 130, 246, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(16, 185, 129, 0.1) 0%,
+      transparent 50%
+    );
 }
 
 /* Glassmorphism Card Enhancement */
@@ -235,4 +302,192 @@ body {
   background: var(--secondary);
   border: 1px solid var(--border);
   color: var(--secondary-foreground);
+}
+
+/* Enhanced responsive layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Page transition effects */
+.page-transition {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: pageEnter 0.4s ease-out forwards;
+}
+
+@keyframes pageEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--radius);
+  min-height: 1rem;
+}
+
+.dark .loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    #374151 25%,
+    #4b5563 50%,
+    #374151 75%
+  );
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Calendar transition effects */
+.calendar-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Calendar custom styles */
+[data-slot="calendar"] {
+  background: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Fix calendar day styling */
+[data-slot="calendar"] button[data-selected-single="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Fix today styling */
+[data-slot="calendar"] .rdp-day_today button,
+[data-slot="calendar"] button[data-today="true"] {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border: 1px solid var(--accent) !important;
+  font-weight: 600;
+}
+
+/* Fix range selection styling */
+[data-slot="calendar"] button[data-range-start="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+[data-slot="calendar"] button[data-range-end="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-radius: 0 6px 6px 0 !important;
+}
+
+[data-slot="calendar"] button[data-range-middle="true"] {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border-radius: 0 !important;
+}
+
+/* Fix hover states */
+[data-slot="calendar"]
+  button:hover:not([data-selected-single="true"]):not(
+    [data-range-start="true"]
+  ):not([data-range-end="true"]):not([data-range-middle="true"]) {
+  background: var(--accent) / 50 !important;
+  color: var(--accent-foreground) !important;
+}
+
+/* Card hover effects */
+.glass-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+/* Footer styles */
+.footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  background: var(--card-secondary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.footer a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Responsive grid improvements */
+@media (max-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .text-responsive {
+    font-size: 1.5rem;
+  }
+
+  .card-responsive {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .text-responsive {
+    font-size: 2rem;
+  }
+
+  .card-responsive {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
 }

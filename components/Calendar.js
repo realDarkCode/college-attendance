@@ -106,6 +106,7 @@ export default function Calendar({
   holidays = [], // Default to empty array
   currentDate,
   setCurrentDate,
+  onCalendarLoading,
 }) {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -123,6 +124,12 @@ export default function Calendar({
   const totalDays = lastDayOfMonth.getDate();
 
   const changeMonth = (offset) => {
+    // Add loading transition
+    if (typeof onCalendarLoading === "function") {
+      onCalendarLoading(true);
+      setTimeout(() => onCalendarLoading(false), 300);
+    }
+
     const newDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + offset,
@@ -161,7 +168,7 @@ export default function Calendar({
   };
 
   return (
-    <Card className="glass-card">
+    <Card className="glass-card calendar-transition">
       <CardHeader className="flex flex-row items-center justify-between">
         <Button variant="outline" size="icon" onClick={() => changeMonth(-1)}>
           <ChevronLeft className="size-5" />

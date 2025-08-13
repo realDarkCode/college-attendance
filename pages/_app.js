@@ -1,9 +1,16 @@
 import Head from "next/head";
+import { useEffect } from "react";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
+  useEffect(() => {
+    // Initialize theme on app startup
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+  }, []);
+
   return (
-    <main className="dark glass-bg min-h-screen">
+    <main className="glass-bg min-h-screen">
       <Head>
         <link
           rel="apple-touch-icon"
