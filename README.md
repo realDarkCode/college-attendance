@@ -48,11 +48,89 @@ After a months of usage, the outcome has been very promising.
 
 ## Setup and Installation
 
+### Prerequisites
+
+Before setting up the College Attendance Tracker, make sure you have **Node.js** installed on your system.
+
+**Download and Install Node.js:**
+1. Visit [https://nodejs.org/](https://nodejs.org/)
+2. Download the LTS (Long Term Support) version
+3. Run the installer and follow the installation wizard
+4. Verify installation by opening Command Prompt and running:
+   ```bash
+   node --version
+   npm --version
+   ```
+
+### Windows Setup (Recommended)
+
+**1. Download or Clone the Project:**
+```bash
+git clone <repository-url>
+cd college-attendance-dev
+```
+
+**2. Run Setup (One-time installation):**
+```batch
+# Double-click this file or run in Command Prompt
+setup.bat
+```
+This will:
+- Install all required dependencies (`npm install`)
+- Create necessary data files and folders
+- Build the production version of the application
+- Set up the project structure
+
+**3. Start the Application:**
+```batch
+# Double-click this file or run in Command Prompt
+start.bat
+```
+This will:
+- Start the web application on `http://localhost:4040`
+- Keep the application running until you close the window
+
+**4. Configure Your Credentials:**
+- Open your browser and go to `http://localhost:4040`
+- Click on "Settings" in the top right
+- Enter your college website username and password
+- Configure any custom holidays if needed
+
+### Optional: Automatic Startup (Windows)
+
+If you want the application to **automatically start and scrape data in the background** every time your computer boots up:
+
+**Run Auto-Setup (One-time configuration):**
+```batch
+# Double-click this file or run in Command Prompt
+auto.bat
+```
+
+This will:
+- ✅ Configure automatic startup on Windows boot
+- ✅ Start the web application automatically in background
+- ✅ Run attendance scraper every 3 hours automatically
+- ✅ Work completely in the background
+- ✅ Continue running until computer shutdown
+
+**After running `auto.bat` once:**
+- Restart your computer to test automatic startup
+- The application will be available at `http://localhost:4040`
+- Attendance data will be scraped automatically every 3 hours
+- Everything runs silently in the background
+
+**To remove automatic startup:**
+```batch
+auto.bat uninstall
+```
+
+### Manual Setup (Advanced Users)
+
 **1. Clone the repository:**
 
 ```bash
 git clone <repository-url>
-cd college-attendance
+cd college-attendance-dev
 ```
 
 **2. Install dependencies:**
@@ -66,53 +144,68 @@ The application uses local JSON files for data persistence. Create a `data` dire
 
 - `config.json`: Stores login credentials and user preferences.
   ```json
-  { "username": "YOUR_USERNAME", "password": "YOUR_PASSWORD" }
+  { "username": "YOUR_USERNAME", "password": "YOUR_PASSWORD", "calendarOnly": false, "notifications": true }
   ```
 - `holidays.json`: Stores custom holidays with names.
   ```json
-  { "holidays": [{ "date": "2025-01-01", "name": "New Year's Day" }] }
+  []
   ```
 - `attendance.json`: Stores scraped attendance data (initially empty).
   ```json
   []
   ```
+- `scrape-status.json`: Stores scraper status information.
+  ```json
+  { "lastRun": "", "status": "idle", "progress": 0 }
+  ```
 
-**4. Run the development server:**
+**4. Build the application:**
 
 ```bash
-npm run dev
+npm run build
+```
+
+**5. Run the production server:**
+
+```bash
+npm run start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## Automation with Cron
+## Usage
 
-To run the scraper automatically on system startup, you can set up a cron job. The provided `scrape.sh` script includes logic to **only run if the current time is 10 AM or later**, preventing unnecessary scrapes.
+### First Time Setup
+1. **Run Setup**: Double-click `setup.bat` (Windows) or follow manual setup instructions
+2. **Start Application**: Double-click `start.bat` or run `npm run start`
+3. **Configure Credentials**: Go to Settings page and enter your college login details
+4. **Add Holidays**: Add any custom holidays that should be excluded from attendance calculations
 
-**1. Make the script executable:**
+### Daily Usage
+- **Manual Mode**: Start the application with `start.bat` when needed
+- **Automatic Mode**: Set up with `auto.bat` for hands-free operation
 
-```bash
-chmod +x scrape.sh
+### Scraper Behavior
+- Automatically runs after 10 AM to ensure fresh daily data
+- Updates existing entries if run multiple times in a day
+- Shows detailed progress and error information
+
+## File Structure
+
+```
+college-attendance-dev/
+├── setup.bat              # Windows setup script (run once)
+├── start.bat               # Start application manually
+├── auto.bat                # Configure automatic startup (optional)
+├── components/             # React components
+├── pages/                  # Next.js pages and API routes
+├── scripts/                # Automation scripts
+├── data/                   # Local data storage
+│   ├── attendance.json     # Attendance records
+│   ├── config.json         # User settings
+│   ├── holidays.json       # Custom holidays
+│   └── scrape-status.json  # Scraper status
+└── docs/                   # Documentation and screenshots
 ```
 
-**2. Edit your crontab:**
 
-```bash
-crontab -e
-```
-
-**3. Add the cron job for startup:**
-
-```cron
-@reboot /path/to/your/project/scrape.sh >> /path/to/your/project/cron.log 2>&1
-```
-
-This job will execute the script every time the system reboots. The script itself will then decide whether to proceed based on the current time.
-
-**Alternative: Daily scheduled run at 8 AM:**
-
-```cron
-0 8 * * * /bin/bash /path/to/your/project/scrape.sh
-```
-
-> **Note**: Make sure to replace `/path/to/your/project/` with the absolute path to the `college-attendance` directory.

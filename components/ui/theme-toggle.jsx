@@ -2,13 +2,28 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    // Check for saved theme preference or default to dark
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+    // Sync with the theme that was already set by the blocking script
+    const isDark = document.documentElement.classList.contains("dark");
+    const savedTheme = localStorage.getItem("theme");
+    
+    let currentTheme;
+    if (savedTheme) {
+      currentTheme = savedTheme;
+    } else {
+      // If no saved preference, use device preference (should match the blocking script)
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      currentTheme = prefersDark ? "dark" : "light";
+    }
+    
+    setTheme(currentTheme);
+    
+    // Ensure the DOM matches our state (should already be set by blocking script)
+    if (isDark !== (currentTheme === "dark")) {
+      document.documentElement.classList.toggle("dark", currentTheme === "dark");
+    }
   }, []);
 
   const toggleTheme = () => {
@@ -25,7 +40,7 @@ export const ThemeToggle = () => {
           if (theme !== "light") toggleTheme();
         }}
         className={`
-          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out
+          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out cursor-pointer
           ${
             theme === "light"
               ? "bg-primary text-primary-foreground shadow-lg scale-105"
@@ -43,7 +58,7 @@ export const ThemeToggle = () => {
           if (theme !== "dark") toggleTheme();
         }}
         className={`
-          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out
+          flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-300 ease-out cursor-pointer
           ${
             theme === "dark"
               ? "bg-primary text-primary-foreground shadow-lg scale-105"

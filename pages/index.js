@@ -94,15 +94,20 @@ export default function Home() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        await Promise.all([
+        const [attendanceData, , holidaysData] = await Promise.all([
           fetchAttendance(),
           fetchStatus(),
           fetchHolidays(),
           fetchPreferences(),
         ]);
 
-        // After initial data is loaded, check if we need to auto-fetch
-        if (
+        // Check if we need to auto-scrape for today after initial data load
+        setHolidays(holidaysData); // Ensure holidays are set before checking
+        if (shouldAutoScrapeToday(attendanceData)) {
+          console.log("Auto-scraping for today's data...");
+          setAutoFetchAttempted(true);
+          setTimeout(() => handleScrape(), 1000); // Small delay to ensure UI is ready
+        } else if (
           lastFetched &&
           shouldAutoFetch(lastFetched) &&
           !isScraping &&
@@ -131,16 +136,23 @@ export default function Home() {
     try {
       const res = await fetch("/api/attendance");
       const data = await res.json();
-      setAttendance(data);
-      if (data.length > 0) {
-        const latestEntry = data[data.length - 1];
+      
+      // Ensure data is an array before using spread operator
+      const attendanceArray = Array.isArray(data) ? data : [];
+      setAttendance([...attendanceArray]); // Force array re-render with spread
+      
+      if (attendanceArray.length > 0) {
+        const latestEntry = attendanceArray[attendanceArray.length - 1];
         setStudentName(latestEntry.name);
         if (latestEntry.fetchedAt) {
           setLastFetched(latestEntry.fetchedAt);
         }
       }
+      return attendanceArray; // Return data for further processing
     } catch (error) {
       console.error("Failed to fetch attendance", error);
+      setAttendance([]); // Set empty array on error
+      return [];
     }
   };
 
@@ -159,9 +171,15 @@ export default function Home() {
       const res = await fetch("/api/holidays");
       if (!res.ok) throw new Error("Failed to fetch holidays");
       const data = await res.json();
-      setHolidays(data);
+      
+      // Ensure data is an array before using spread operator
+      const holidaysArray = Array.isArray(data) ? data : [];
+      setHolidays([...holidaysArray]); // Force array re-render with spread
+      return holidaysArray;
     } catch (error) {
       console.error("Failed to fetch holidays", error);
+      setHolidays([]); // Set empty array on error
+      return [];
     }
   };
 
@@ -180,6 +198,30 @@ export default function Home() {
     }
   };
 
+  // Check if today's data exists
+  const hasTodaysData = (attendanceData) => {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    return attendanceData.some(entry => entry.date === today);
+  };
+
+  // Check if we need to auto-scrape for today
+  const shouldAutoScrapeToday = (attendanceData) => {
+    if (isScraping || autoFetchAttempted) return false;
+    
+    // Don't auto-scrape on weekends (Friday=5, Saturday=6)
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    if (dayOfWeek === 5 || dayOfWeek === 6) return false;
+    
+    // Don't auto-scrape if it's a holiday
+    const todayStr = today.toISOString().split('T')[0];
+    const isHoliday = holidays.some(holiday => holiday.date === todayStr);
+    if (isHoliday) return false;
+    
+    // Auto-scrape if no data for today
+    return !hasTodaysData(attendanceData);
+  };
+
   const pollScrapeStatus = async () => {
     try {
       const res = await fetch("/api/scrape-status");
@@ -196,8 +238,20 @@ export default function Home() {
         setIsScraping(false);
         setUiMessage({ text: "Scraping successful!", type: "success" });
         setTimeout(() => setUiMessage({ text: "", type: "" }), 5000); // Clear after 5s
-        fetchAttendance();
-        fetchStatus();
+        
+        // Refresh all data after a short delay to ensure server has processed everything
+        setTimeout(async () => {
+          console.log("Refreshing all data after scrape completion...");
+          const [newAttendanceData] = await Promise.all([
+            fetchAttendance(),
+            fetchStatus(),
+            fetchHolidays(),
+          ]);
+          
+          // Force a complete re-render by updating currentDate slightly
+          setCurrentDate(new Date(currentDate.getTime()));
+          console.log("Data refresh completed, UI should update now");
+        }, 1000); // Increased delay to 1 second for better reliability
       } else if (data.progress < 0) {
         clearInterval(pollingInterval.current);
         pollingInterval.current = null;
@@ -448,6 +502,7 @@ export default function Home() {
             <div className="p-6">
               <div className="relative">
                 <Calendar
+                  key={`calendar-${attendance.length}-${holidays.length}-${currentDate.getTime()}`}
                   attendanceData={attendance}
                   holidays={holidays}
                   currentDate={currentDate}

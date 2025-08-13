@@ -221,10 +221,8 @@ export default function Calendar({
             const entry = attendanceData.find((d) => d.date === dateStr);
             let status = entry ? entry.dayStatus : "Unavailable";
 
-            if (isFutureDate && status === "Unavailable") {
-              // Don't mark future dates as unavailable unless they are holidays
-              status = null;
-            }
+            // Keep future dates as unavailable (same as past dates without data)
+            // Only holidays should override the unavailable status
 
             if (isWeeklyHoliday || customHoliday) {
               status = "Holiday";

@@ -14,11 +14,37 @@ const readAttendanceDataSync = () => {
     "data",
     "attendance.json"
   );
-  if (!fs.existsSync(attendanceFilePath)) {
+  
+  try {
+    if (!fs.existsSync(attendanceFilePath)) {
+      return [];
+    }
+    
+    const fileContent = fs.readFileSync(attendanceFilePath, "utf-8");
+    
+    // Check if file is empty or just whitespace
+    if (!fileContent.trim()) {
+      console.log("Attendance file is empty, returning empty array");
+      return [];
+    }
+    
+    const data = JSON.parse(fileContent);
+    
+    // Ensure data is an array
+    if (!Array.isArray(data)) {
+      console.log("Attendance data is not an array, returning empty array");
+      return [];
+    }
+    
+    return data;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.log("Invalid JSON in attendance file, returning empty array");
+      return [];
+    }
+    console.error("Error reading attendance data:", error);
     return [];
   }
-  const fileContent = fs.readFileSync(attendanceFilePath, "utf-8");
-  return JSON.parse(fileContent);
 };
 
 const writeAttendanceDataSync = (data) => {
@@ -28,7 +54,22 @@ const writeAttendanceDataSync = (data) => {
     "data",
     "attendance.json"
   );
-  fs.writeFileSync(attendanceFilePath, JSON.stringify(data, null, 2));
+  
+  try {
+    // Ensure data directory exists
+    const dataDir = path.dirname(attendanceFilePath);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
+    // Ensure data is an array
+    const dataToWrite = Array.isArray(data) ? data : [];
+    
+    fs.writeFileSync(attendanceFilePath, JSON.stringify(dataToWrite, null, 2));
+  } catch (error) {
+    console.error("Error writing attendance data:", error);
+    throw error;
+  }
 };
 
 const wasScrapedTodaySync = () => {
@@ -50,26 +91,30 @@ const getDayStatus = (newData, previousData) => {
 const run = async () => {
   console.log(
     new Date().toLocaleDateString(),
-    "Checking if scraping is needed for today..."
+    new Date().toLocaleTimeString(),
+    "Running attendance scraper..."
   );
 
+  // Check if already scraped today, but continue anyway for auto-service
   if (wasScrapedTodaySync()) {
     console.log(
       new Date().toLocaleDateString(),
-      "Already scraped today. Exiting."
+      new Date().toLocaleTimeString(), 
+      "Already scraped today, but running again to check for updates..."
     );
-    return;
   }
 
   console.log(
     new Date().toLocaleDateString(),
-    "Scraping not found for today. Starting scraper..."
+    new Date().toLocaleTimeString(),
+    "Starting scraper..."
   );
   try {
     const scrapedData = await scrapeAttendance();
     if (!scrapedData) {
       console.error(
         new Date().toLocaleDateString(),
+        new Date().toLocaleTimeString(),
         "Scraper returned no data. Exiting."
       );
       return;
@@ -85,27 +130,50 @@ const run = async () => {
       dayStatus = getDayStatusFromData(scrapedData, attendance);
     }
 
-    // Use the date returned from the scraper to ensure consistency
-    const newEntry = {
-      date: scrapedData.date, // Use the timezone-correct date from the scraper
-      name: scrapedData.name,
-      data: scrapedData.data,
-      dayStatus: dayStatus,
-      fetchedAt: new Date().toISOString(), // UTC timestamp for when it was fetched
-      notificationSent: scrapedData.notificationSent || false,
-      notificationSentAt: scrapedData.notificationSentAt || null,
-    };
+    // Check if today's data already exists
+    const todayStr = scrapedData.date;
+    const existingEntry = attendance.find(entry => entry.date === todayStr);
+    
+    if (existingEntry) {
+      // Update existing entry instead of adding duplicate
+      console.log(
+        new Date().toLocaleDateString(),
+        new Date().toLocaleTimeString(),
+        "Updating existing entry for today..."
+      );
+      
+      existingEntry.data = scrapedData.data;
+      existingEntry.dayStatus = dayStatus;
+      existingEntry.fetchedAt = new Date().toISOString();
+      existingEntry.notificationSent = scrapedData.notificationSent || false;
+      existingEntry.notificationSentAt = scrapedData.notificationSentAt || null;
+      
+      writeAttendanceDataSync(attendance);
+    } else {
+      // Add new entry
+      const newEntry = {
+        date: scrapedData.date,
+        name: scrapedData.name,
+        data: scrapedData.data,
+        dayStatus: dayStatus,
+        fetchedAt: new Date().toISOString(),
+        notificationSent: scrapedData.notificationSent || false,
+        notificationSentAt: scrapedData.notificationSentAt || null,
+      };
 
-    attendance.push(newEntry);
-    writeAttendanceDataSync(attendance);
+      attendance.push(newEntry);
+      writeAttendanceDataSync(attendance);
+    }
 
     console.log(
       new Date().toLocaleDateString(),
+      new Date().toLocaleTimeString(),
       "Successfully scraped attendance data and saved it."
     );
   } catch (error) {
     console.error(
       new Date().toLocaleDateString(),
+      new Date().toLocaleTimeString(),
       "An error occurred during scraping:",
       error
     );
