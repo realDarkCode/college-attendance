@@ -235,7 +235,7 @@ export default function Calendar({
               currentDate.getFullYear() === today.getFullYear();
 
             const dayClasses = [
-              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all bg-muted duration-200 text-sm sm:text-base cursor-pointer hover:scale-105 ",
+              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all attendance-base duration-200 text-sm sm:text-base cursor-pointer hover:scale-105 ",
               getStatusColor(status),
               isToday ? "ring-1 ring-primary shadow shadow-primary" : "",
             ];
