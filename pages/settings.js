@@ -508,7 +508,7 @@ export default function Settings() {
                     <div className="flex items-center justify-between p-4 glass-card rounded-lg">
                       <div className="space-y-1">
                         <Label
-                          htmlFor="theme-toggle"
+                          htmlFor="theme-selector"
                           className="text-base font-medium"
                         >
                           Theme

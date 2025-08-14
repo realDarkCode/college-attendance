@@ -11,19 +11,21 @@ export default function Document() {
               (function() {
                 try {
                   const savedTheme = localStorage.getItem('theme');
+                  const themes = ['light', 'dark', 'dracula', 'nord', 'monokai', 'darkcode', 'ocean', 'forest'];
                   let theme;
                   
-                  if (savedTheme) {
-                    // If user has previously set a theme, use that
+                  if (savedTheme && themes.includes(savedTheme)) {
                     theme = savedTheme;
                   } else {
-                    // If no saved preference, use device preference
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    theme = prefersDark ? 'dark' : 'light';
+                    // Default to dark theme instead of system preference
+                    theme = 'dark';
                   }
                   
+                  // Apply theme to document
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                  } else if (theme !== 'light') {
+                    document.documentElement.setAttribute('data-theme', theme);
                   }
                 } catch (e) {
                   // Fallback to light theme if there's any error
