@@ -9,16 +9,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md hover:scale-105 border border-primary/20",
+          "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:shadow-xl hover:scale-105 border border-primary/30 backdrop-blur-sm",
         destructive:
-          "bg-destructive/80 text-white shadow-sm hover:bg-destructive/90 hover:shadow-md hover:scale-105 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 border border-destructive/30",
+          "bg-destructive text-destructive-foreground shadow-lg hover:bg-destructive/90 hover:shadow-xl hover:scale-105 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 border border-destructive/40 backdrop-blur-sm",
         outline:
-          "border border-border/60 bg-background/30 backdrop-blur-md shadow-sm hover:bg-primary/50 hover:text-primary-foreground hover:border-border/80 hover:scale-105 hover:shadow-md",
+          "border border-border bg-glass-bg backdrop-blur-md shadow-md hover:bg-primary hover:text-primary-foreground hover:border-primary hover:scale-105 hover:shadow-lg text-foreground",
         secondary:
-          "bg-secondary/60 text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:scale-105 border border-secondary/30 hover:shadow-md",
+          "bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/80 hover:scale-105 border border-secondary/40 hover:shadow-lg backdrop-blur-sm",
         ghost:
-          "hover:bg-accent/30 hover:text-accent-foreground hover:backdrop-blur-md hover:scale-105",
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:bg-accent hover:text-accent-foreground hover:backdrop-blur-md hover:scale-105 hover:shadow-md",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

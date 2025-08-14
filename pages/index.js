@@ -136,11 +136,11 @@ export default function Home() {
     try {
       const res = await fetch("/api/attendance");
       const data = await res.json();
-      
+
       // Ensure data is an array before using spread operator
       const attendanceArray = Array.isArray(data) ? data : [];
       setAttendance([...attendanceArray]); // Force array re-render with spread
-      
+
       if (attendanceArray.length > 0) {
         const latestEntry = attendanceArray[attendanceArray.length - 1];
         setStudentName(latestEntry.name);
@@ -171,7 +171,7 @@ export default function Home() {
       const res = await fetch("/api/holidays");
       if (!res.ok) throw new Error("Failed to fetch holidays");
       const data = await res.json();
-      
+
       // Ensure data is an array before using spread operator
       const holidaysArray = Array.isArray(data) ? data : [];
       setHolidays([...holidaysArray]); // Force array re-render with spread
@@ -200,24 +200,24 @@ export default function Home() {
 
   // Check if today's data exists
   const hasTodaysData = (attendanceData) => {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    return attendanceData.some(entry => entry.date === today);
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+    return attendanceData.some((entry) => entry.date === today);
   };
 
   // Check if we need to auto-scrape for today
   const shouldAutoScrapeToday = (attendanceData) => {
     if (isScraping || autoFetchAttempted) return false;
-    
+
     // Don't auto-scrape on weekends (Friday=5, Saturday=6)
     const today = new Date();
     const dayOfWeek = today.getDay();
     if (dayOfWeek === 5 || dayOfWeek === 6) return false;
-    
+
     // Don't auto-scrape if it's a holiday
-    const todayStr = today.toISOString().split('T')[0];
-    const isHoliday = holidays.some(holiday => holiday.date === todayStr);
+    const todayStr = today.toISOString().split("T")[0];
+    const isHoliday = holidays.some((holiday) => holiday.date === todayStr);
     if (isHoliday) return false;
-    
+
     // Auto-scrape if no data for today
     return !hasTodaysData(attendanceData);
   };
@@ -238,7 +238,7 @@ export default function Home() {
         setIsScraping(false);
         setUiMessage({ text: "Scraping successful!", type: "success" });
         setTimeout(() => setUiMessage({ text: "", type: "" }), 5000); // Clear after 5s
-        
+
         // Refresh all data after a short delay to ensure server has processed everything
         setTimeout(async () => {
           console.log("Refreshing all data after scrape completion...");
@@ -247,7 +247,7 @@ export default function Home() {
             fetchStatus(),
             fetchHolidays(),
           ]);
-          
+
           // Force a complete re-render by updating currentDate slightly
           setCurrentDate(new Date(currentDate.getTime()));
           console.log("Data refresh completed, UI should update now");
@@ -441,7 +441,7 @@ export default function Home() {
             </div>
           </div>
           {!preferences.calendarOnly && (
-            <div className="flex w-full justify-between px-2 my-4 items-center">
+            <div className="flex w-full justify-between px-2 my-4 lg:my-4 items-center">
               {studentName && (
                 <p className="text-base sm:text-lg text-muted-foreground">
                   Name:{" "}
@@ -468,8 +468,8 @@ export default function Home() {
           <div
             className={`p-4 mb-6 text-sm rounded-lg flex justify-between items-center ${
               uiMessage.type === "error"
-                ? "bg-destructive/10 text-destructive-foreground"
-                : "bg-success/10 text-success-foreground"
+                ? "bg-destructive/80 text-destructive-foreground"
+                : "bg-success/80 text-success-foreground"
             }`}
           >
             <span>{uiMessage.text}</span>
@@ -490,7 +490,7 @@ export default function Home() {
 
         <div className="space-y-6 lg:space-y-8">
           {!preferences.calendarOnly && (
-            <div className="glass-card p-6">
+            <div className="glass-card p-3">
               <MonthlyStats
                 attendanceData={attendance}
                 currentDate={currentDate}
@@ -499,10 +499,12 @@ export default function Home() {
             </div>
           )}
           <div className="glass-card">
-            <div className="p-6">
+            <div className="p-3">
               <div className="relative">
                 <Calendar
-                  key={`calendar-${attendance.length}-${holidays.length}-${currentDate.getTime()}`}
+                  key={`calendar-${attendance.length}-${
+                    holidays.length
+                  }-${currentDate.getTime()}`}
                   attendanceData={attendance}
                   holidays={holidays}
                   currentDate={currentDate}

@@ -6,6 +6,9 @@
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
+  --glass-bg: rgba(15, 23, 42, 0.25);
+  --glass-border: rgba(30, 41, 59, 0.35);
+  --glass-shadow: ;
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
@@ -51,22 +54,25 @@
 :root {
   --radius: 0.75rem;
   --glass-blur: 16px;
+  --glass-blur-heavy: 24px;
   --glass-saturate: 180%;
-  --glass-brightness: 1.05;
+  --glass-brightness: 1.1;
   --glass-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate))
     brightness(var(--glass-brightness));
+  --glass-backdrop-heavy: blur(var(--glass-blur-heavy))
+    saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
 
   /* Light Theme */
-  --background-base: #f8fafc;
+  --background-base: #e2e8f0;
   --foreground: #0f172a;
 
   /* Card Styles */
-  --card: rgba(255, 255, 255, 0.7);
-  --card-border: rgba(255, 255, 255, 0.6);
+  --card: rgba(226, 232, 240, 0.9);
+  --card-border: rgba(203, 213, 225, 0.8);
   --card-foreground: #0f172a;
   --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 
-  --card-secondary: rgba(248, 250, 252, 0.5);
+  --card-secondary: rgba(226, 232, 240, 0.7);
   --card-secondary-foreground: #0f172a;
 
   --popover: rgba(255, 255, 255, 0.8);
@@ -80,8 +86,8 @@
   --secondary: rgba(79, 70, 229, 0.1);
   --secondary-foreground: #4f46e5;
 
-  --muted: rgba(148, 163, 184, 0.1);
-  --muted-foreground: #64748b;
+  --muted: rgba(148, 163, 184, 0.3);
+  --muted-foreground: #475569;
 
   --accent: rgba(99, 102, 241, 0.2);
   --accent-foreground: #4f46e5;
@@ -99,14 +105,14 @@
   --info-foreground: #2563eb;
 
   /* UI Elements */
-  --border: rgba(203, 213, 225, 0.3);
-  --input: rgba(226, 232, 240, 0.8);
+  --border: rgba(148, 163, 184, 0.4);
+  --input: rgba(203, 213, 225, 0.9);
   --ring: #a5b4fc;
 
   /* Glass Effects */
-  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.25);
   --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
@@ -158,16 +164,16 @@
   --ring: #818cf8;
 
   /* Glass Effects */
-  --glass-bg: rgba(15, 23, 42, 0.6);
-  --glass-border: rgba(30, 41, 59, 0.3);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: none;
 }
 
 /* Attendance Status Classes */
 .attendance-base {
   border-radius: var(--radius-sm);
   transition: all 0.2s ease-in-out;
-  background: var(--muted);
+  background: color-mix(in srgb, var(--muted) 60%, var(--background-base) 40%);
 }
 
 .attendance-present {
@@ -196,7 +202,6 @@
 }
 
 .attendance-unavailable {
-  background-color: var(--muted);
   color: var(--muted-foreground);
   border-color: var(--border);
   cursor: not-allowed;
@@ -245,12 +250,91 @@ body {
 }
 
 .glass-card {
-  background-color: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-backdrop);
+  background: var(--glass-bg);
   backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-radius: var(--radius);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.6),
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+.dark .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+.dark .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+.dark .glass-card::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    transparent,
+    rgba(255, 255, 255, 0.04)
+  );
+}
+
+.glass-card:hover {
+  background: color-mix(in srgb, var(--glass-bg) 80%, var(--foreground) 5%);
+  border-color: color-mix(
+    in srgb,
+    var(--glass-border) 80%,
+    var(--foreground) 10%
+  );
+  transform: translateY(-1px);
+}
+
+/* Layered glass cards with enhanced blur */
+.glass-card .glass-card,
+.glass-card-layered {
+  background: color-mix(in srgb, var(--glass-bg) 40%, transparent);
+  -webkit-backdrop-filter: var(--glass-backdrop-heavy);
+  backdrop-filter: var(--glass-backdrop-heavy);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent);
 }
 
 /* Override default card styles from library */
@@ -263,9 +347,31 @@ body {
 /* Enhanced Card Backgrounds */
 .bg-card-secondary {
   background: var(--card-secondary);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--card-border);
+}
+
+/* Additional Glassmorphism Utilities */
+.glass-light {
+  background: color-mix(in srgb, var(--glass-bg) 50%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 50%, transparent);
+}
+
+.glass-medium {
+  background: color-mix(in srgb, var(--glass-bg) 75%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 75%, transparent);
+}
+
+.glass-heavy {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
 }
 
 /* Page transition effects */

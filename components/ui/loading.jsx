@@ -11,18 +11,28 @@ const LoadingSpinner = ({ size = "default", text = "Loading..." }) => {
 
   return (
     <div className="flex items-center justify-center space-x-2">
-      <Loader2 className={`${sizeClasses[size]} animate-spin text-primary`} />
-      <span className="text-muted-foreground">{text}</span>
+      <Loader2
+        className={`${sizeClasses[size]} animate-spin text-primary drop-shadow-sm`}
+      />
+      <span className="text-foreground/80 font-medium">{text}</span>
     </div>
   );
 };
 
 const PageLoader = ({ text = "Loading page..." }) => {
   return (
-    <div className="glass-bg min-h-screen flex items-center justify-center p-4">
-      <Card className="glass-card w-full max-w-md">
-        <CardContent className="p-8">
-          <LoadingSpinner size="xl" text={text} />
+    <div className="glass-container min-h-screen flex items-center justify-center p-4">
+      <Card className="glass-card w-full max-w-md border-primary/20 shadow-2xl">
+        <CardContent className="p-8 text-center">
+          <div className="mb-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Please wait
+          </h3>
+          <p className="text-foreground/70 text-sm">{text}</p>
         </CardContent>
       </Card>
     </div>

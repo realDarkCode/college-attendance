@@ -554,10 +554,10 @@ export default function Settings() {
                   {groupedHolidays().map((holiday, index) => (
                     <div
                       key={holiday.rangeId || holiday.date || index}
-                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-background/50 backdrop-blur-sm rounded-lg border border-border/50 hover:bg-background/70 transition-all duration-200 gap-3"
+                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 glass-card rounded-lg hover:bg-glass-bg/50 transition-all duration-200 gap-3 border border-glass-border"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-grow">
-                        <span className="text-xs font-mono bg-primary/20 text-primary px-2 py-1 rounded-md w-fit border border-primary/30">
+                        <span className="text-xs font-mono bg-primary/15 text-primary px-3 py-1.5 rounded-lg w-fit border border-primary/25 backdrop-blur-sm">
                           {holiday.isRange
                             ? holiday.displayDate
                             : formatDate(holiday.date)}
@@ -566,7 +566,7 @@ export default function Settings() {
                           {holiday.name}
                         </span>
                         {holiday.isRange && (
-                          <span className="text-xs text-muted-foreground bg-accent/20 px-2 py-1 rounded-md">
+                          <span className="text-xs text-accent-foreground bg-accent/15 px-2.5 py-1 rounded-lg border border-accent/25 backdrop-blur-sm">
                             {holiday.dates.length} days
                           </span>
                         )}
@@ -575,7 +575,7 @@ export default function Settings() {
                         variant="destructive"
                         size="sm"
                         onClick={() => handleRemoveHoliday(holiday)}
-                        className="w-full sm:w-auto bg-destructive/90 hover:bg-destructive text-destructive-foreground shadow-sm transition-all duration-200"
+                        className="w-full sm:w-auto shadow-lg transition-all duration-200"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         {holiday.isRange
