@@ -3,7 +3,7 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document provides a detailed description of the requirements for the **College Attendance Tracker**. The system is designed to automate the entire lifecycle of attendance tracking for a student: fetching data from a college web portal, storing it persistently, and visualizing it in an intuitive manner. The goal is to eliminate the need for manual, repetitive checks and provide a clear, at-a-glance overview of attendance status.
+This document provides a detailed description of the requirements for the **Attendance Tracker**. The system is designed to automate the entire lifecycle of attendance tracking for a student: fetching data from a college web portal, storing it persistently, and visualizing it in an intuitive manner. The goal is to eliminate the need for manual, repetitive checks and provide a clear, at-a-glance overview of attendance status.
 
 ### 1.2 Scope
 The project is a full-stack web application developed using the Next.js framework. Its core functionality involves:
@@ -18,7 +18,7 @@ This document is intended for project developers, testers, and project managers.
 ## 2. Overall Description
 
 ### 2.1 Product Perspective
-The College Attendance Tracker is a standalone, single-user application. It operates on the user's local machine and is not intended for a client-server deployment model with multiple users. It acts as a personal assistant for attendance management.
+The Attendance Tracker is a standalone, single-user application. It operates on the user's local machine and is not intended for a client-server deployment model with multiple users. It acts as a personal assistant for attendance management.
 
 ### 2.2 Product Features
 - **Automated Login**: Securely handles user credentials to log into the college portal.

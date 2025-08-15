@@ -28,7 +28,7 @@ yarn-error.log*
 
 # Data files (as they contain sensitive or user-specific info)
 /data/attendance.json
-/data/credentials.json
+/data/config.json
 /data/holidays.json
 
 # Log files

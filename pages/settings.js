@@ -1,29 +1,78 @@
+import Footer from "@/components/Footer";
+import HolidayManager from "@/components/HolidayManager";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  AlertCircle,
+  Bell,
+  CalendarDays,
+  Eye,
+  EyeOff,
+  Home,
+  Save,
+  ShieldUser,
+  Trash2,
+  UserCog,
+} from "lucide-react";
 import Head from "next/head";
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Settings() {
   const [holidays, setHolidays] = useState([]);
-  const [newHoliday, setNewHoliday] = useState({ date: "", name: "" });
   const [message, setMessage] = useState("");
-  const [credentials, setCredentials] = useState({
+  const [config, setConfig] = useState({
     username: "",
     password: "",
+    calendarOnly: false,
+    notifications: true,
   });
   const [credMessage, setCredMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    fetchHolidays();
-    fetchCredentials();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchHolidays(), fetchConfig()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
-  const fetchCredentials = async () => {
+  const validateCredentials = () => {
+    const newErrors = {};
+
+    if (!config.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (config.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    }
+
+    if (!config.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (config.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const fetchConfig = async () => {
     try {
-      const res = await fetch("/api/credentials");
-      if (!res.ok) throw new Error("Failed to fetch credentials");
+      const res = await fetch("/api/config");
+      if (!res.ok) throw new Error("Failed to fetch configuration");
       const data = await res.json();
-      setCredentials(data);
+      setConfig(data);
     } catch (error) {
       console.error(error);
       setCredMessage(error.message);
@@ -35,45 +84,165 @@ export default function Settings() {
       const res = await fetch("/api/holidays");
       if (!res.ok) throw new Error("Failed to fetch holidays");
       const data = await res.json();
-      setHolidays(data);
+      // Sort holidays by date (most recent first)
+      const sortedHolidays = data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+      setHolidays(sortedHolidays);
     } catch (error) {
       console.error(error);
       setMessage(error.message);
     }
   };
 
-  const handleAddHoliday = async (e) => {
-    e.preventDefault();
-    if (!newHoliday.date || !newHoliday.name) return;
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const handleAddHoliday = async (holidayData) => {
     try {
+      setMessage("Adding holiday...");
+
+      // Handle both single holidays and range holidays (now all individual)
       const res = await fetch("/api/holidays", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newHoliday),
+        body: JSON.stringify(holidayData),
       });
       const result = await res.json();
       setMessage(result.message);
-      if (res.ok) {
-        setHolidays(result.holidays);
-        setNewHoliday({ date: "", name: "" });
-      }
+
+      // Refresh holidays list
+      fetchHolidays();
     } catch (error) {
       setMessage("Failed to add holiday.");
     }
   };
 
-  const handleRemoveHoliday = async (dateToRemove) => {
-    try {
-      const res = await fetch("/api/holidays", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: dateToRemove }),
-      });
-      const result = await res.json();
-      setMessage(result.message);
-      if (res.ok) {
-        setHolidays(result.holidays);
+  // Group holidays for display
+  const groupedHolidays = () => {
+    const groups = {};
+    const singleHolidays = [];
+    const processedHolidays = new Set();
+
+    // Sort holidays by date first
+    const sortedHolidays = [...holidays].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
+    sortedHolidays.forEach((holiday, index) => {
+      if (processedHolidays.has(holiday.date)) return;
+
+      // Check if this holiday has a rangeId (explicitly grouped)
+      if (holiday.rangeId) {
+        if (!groups[holiday.rangeId]) {
+          groups[holiday.rangeId] = {
+            name: holiday.name,
+            dates: [],
+            rangeId: holiday.rangeId,
+            isRange: true,
+          };
+        }
+        groups[holiday.rangeId].dates.push(holiday.date);
+        processedHolidays.add(holiday.date);
+      } else {
+        // Look for consecutive holidays with the same name
+        const consecutiveHolidays = [holiday];
+        processedHolidays.add(holiday.date);
+
+        let currentDate = new Date(holiday.date);
+        for (let i = index + 1; i < sortedHolidays.length; i++) {
+          currentDate.setDate(currentDate.getDate() + 1);
+          const nextDateStr = currentDate.toISOString().split("T")[0];
+          const nextHoliday = sortedHolidays[i];
+
+          if (
+            nextHoliday.date === nextDateStr &&
+            nextHoliday.name === holiday.name &&
+            !processedHolidays.has(nextHoliday.date)
+          ) {
+            consecutiveHolidays.push(nextHoliday);
+            processedHolidays.add(nextHoliday.date);
+          } else {
+            break;
+          }
+        }
+
+        if (consecutiveHolidays.length > 1) {
+          // Create a group for consecutive holidays
+          const groupId = `auto_${holiday.date}_${
+            consecutiveHolidays[consecutiveHolidays.length - 1].date
+          }_${holiday.name}`;
+          groups[groupId] = {
+            name: holiday.name,
+            dates: consecutiveHolidays.map((h) => h.date),
+            rangeId: groupId,
+            isRange: true,
+          };
+        } else {
+          // Single holiday
+          singleHolidays.push(holiday);
+        }
       }
+    });
+
+    // Format display dates for groups
+    Object.values(groups).forEach((group) => {
+      group.dates.sort();
+      group.startDate = group.dates[0];
+      group.endDate = group.dates[group.dates.length - 1];
+      group.displayDate =
+        group.dates.length === 1
+          ? formatDate(group.startDate)
+          : `${formatDate(group.startDate)} - ${formatDate(group.endDate)}`;
+    });
+
+    // Combine and sort all holidays by date (most recent first)
+    const allGroups = [...singleHolidays, ...Object.values(groups)];
+    return allGroups.sort((a, b) => {
+      const dateA = a.isRange ? a.startDate : a.date;
+      const dateB = b.isRange ? b.startDate : b.date;
+      return new Date(dateB) - new Date(dateA);
+    });
+  };
+
+  const handleRemoveHoliday = async (holidayToRemove) => {
+    try {
+      if (holidayToRemove.isRange) {
+        // Remove all holidays in the range by rangeId
+        setMessage(`Removing ${holidayToRemove.dates.length} holidays...`);
+        for (const date of holidayToRemove.dates) {
+          const res = await fetch("/api/holidays", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date }),
+          });
+          if (!res.ok) {
+            throw new Error("Failed to remove holiday");
+          }
+        }
+        setMessage(
+          `Removed ${holidayToRemove.dates.length} holidays from range: ${holidayToRemove.name}`
+        );
+      } else {
+        // Remove single holiday
+        setMessage("Removing holiday...");
+        const res = await fetch("/api/holidays", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: holidayToRemove.date }),
+        });
+        const result = await res.json();
+        setMessage(result.message);
+      }
+
+      // Refresh holidays list
+      fetchHolidays();
     } catch (error) {
       setMessage("Failed to remove holiday.");
     }
@@ -81,179 +250,353 @@ export default function Settings() {
 
   const handleUpdateCredentials = async (e) => {
     e.preventDefault();
+
+    if (!validateCredentials()) {
+      return;
+    }
+
+    setUpdating(true);
     setCredMessage("Updating...");
+    setErrors({}); // Clear any previous errors
+
     try {
-      const res = await fetch("/api/credentials", {
+      const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(config),
       });
       const result = await res.json();
       setCredMessage(result.message);
     } catch (error) {
-      setCredMessage("Failed to update credentials.");
+      setCredMessage("Failed to update configuration.");
+    } finally {
+      setUpdating(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="glass-container min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
+        <Head>
+          <title>Settings - Attendance Tracker</title>
+        </Head>
+        <main className="max-w-4xl mx-auto page-transition">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <Skeleton className="h-8 w-32" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-32" />
+            </div>
+          </div>
+          <div className="space-y-8">
+            <Card className="glass-card">
+              <CardHeader>
+                <Skeleton className="h-6 w-40" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="flex justify-end">
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="glass-container min-h-screen text-foreground p-4 sm:p-6 md:p-8 font-sans overflow-x-hidden">
       <Head>
-        <title>Settings - College Attendance Tracker</title>
+        <title>Settings - Attendance Tracker</title>
       </Head>
-      <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8 font-sans overflow-x-hidden">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400">
-              Settings
-            </h1>
-            <Link
-              href="/"
-              className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-            >
-              &larr; Back to Home
+      <main className="max-w-4xl mx-auto page-transition">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+            Settings
+          </h1>
+          <div className="flex items-center gap-2">
+            <Link href="/" passHref>
+              <Button variant="outline">
+                <Home className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
             </Link>
           </div>
-
-          {/* Credentials Management */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Manage Credentials</h2>
-            <form onSubmit={handleUpdateCredentials} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={credentials.username}
-                  onChange={(e) =>
-                    setCredentials({ ...credentials, username: e.target.value })
-                  }
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md p-2"
-                />
-              </div>
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Password
-                </label>
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  value={credentials.password}
-                  onChange={(e) =>
-                    setCredentials({ ...credentials, password: e.target.value })
-                  }
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute inset-y-0 right-0 top-6 flex items-center px-3 text-gray-400 hover:text-cyan-400 focus:outline-none"
-                >
-                  {passwordVisible ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
-                        clipRule="evenodd"
-                      />
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.742L2.303 6.546A10.042 10.042 0 01.458 10c1.274 4.057 5.022 7 9.542 7 .847 0 1.673-.105 2.454-.303z" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              <button
-                type="submit"
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                Update Credentials
-              </button>
-            </form>
-            {credMessage && (
-              <p className="text-sm text-gray-400 mt-4">{credMessage}</p>
-            )}
-          </div>
-
-          {/* Holiday Management */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Manage Holidays</h2>
-            <form onSubmit={handleAddHoliday} className="space-y-4 mb-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="date"
-                  value={newHoliday.date}
-                  onChange={(e) =>
-                    setNewHoliday({ ...newHoliday, date: e.target.value })
-                  }
-                  className="bg-gray-700 border border-gray-600 rounded-md p-2 w-full sm:w-1/2"
-                />
-                <input
-                  type="text"
-                  placeholder="Holiday Name (e.g., Summer Break)"
-                  value={newHoliday.name}
-                  onChange={(e) =>
-                    setNewHoliday({ ...newHoliday, name: e.target.value })
-                  }
-                  className="bg-gray-700 border border-gray-600 rounded-md p-2 flex-grow"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                Add Holiday
-              </button>
-            </form>
-            {message && <p className="text-sm text-gray-400 mb-4">{message}</p>}
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Custom Holiday List</h3>
-            {holidays.length > 0 ? (
-              <ul className="space-y-2">
-                {holidays.map((holiday) => (
-                  <li
-                    key={holiday.date}
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gray-700 p-3 rounded-md"
-                  >
-                    <div>
-                      <span className="font-semibold">{holiday.name}</span>
-                      <span className="text-sm text-gray-400 ml-2">
-                        ({holiday.date})
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleRemoveHoliday(holiday.date)}
-                      className="text-red-400 hover:text-red-500 font-semibold"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-400">No custom holidays added yet.</p>
-            )}
-          </div>
         </div>
-      </div>
-    </>
+
+        <div className="space-y-8">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldUser className="h-5 w-5 text-primary" />
+                Login Credentials
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateCredentials} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        value={config.username}
+                        onChange={(e) => {
+                          setConfig({
+                            ...config,
+                            username: e.target.value,
+                          });
+                          // Clear error when user starts typing
+                          if (errors.username) {
+                            setErrors({ ...errors, username: "" });
+                          }
+                        }}
+                        placeholder="Enter your username"
+                        disabled={updating}
+                        className={
+                          errors.username ? "border-destructive-foreground" : ""
+                        }
+                      />
+                      {errors.username && (
+                        <div className="flex items-center gap-1 text-sm text-destructive-foreground border-destructive-foreground">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.username}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={passwordVisible ? "text" : "password"}
+                          value={config.password}
+                          onChange={(e) => {
+                            setConfig({
+                              ...config,
+                              password: e.target.value,
+                            });
+                            // Clear error when user starts typing
+                            if (errors.password) {
+                              setErrors({ ...errors, password: "" });
+                            }
+                          }}
+                          placeholder="Enter your password"
+                          disabled={updating}
+                          className={
+                            errors.password
+                              ? "border-destructive-foreground"
+                              : ""
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPasswordVisible(!passwordVisible)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          disabled={updating}
+                        >
+                          {passwordVisible ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <div className="flex items-center gap-1 text-sm text-destructive-foreborder-destructive-foreground">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.password}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <Button type="submit" disabled={updating}>
+                      <Save className="mr-2 h-4 w-4" />
+                      {updating ? "Saving..." : "Save credential"}
+                    </Button>
+                  </div>
+                </div>
+
+                {credMessage && (
+                  <p className="mt-4 text-sm text-center text-muted-foreground">
+                    {credMessage}
+                  </p>
+                )}
+                <Separator className="my-6 bg-border/50" />
+
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium flex items-center gap-2">
+                    <UserCog className="h-5 w-5 text-primary" />
+                    User Preferences
+                  </h3>
+
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="calendar-only"
+                          className="text-base font-medium"
+                        >
+                          Calendar Only
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Hide monthly stats and user info, show only the
+                          calendar
+                        </p>
+                      </div>
+                      <Switch
+                        id="calendar-only"
+                        checked={config.calendarOnly}
+                        onCheckedChange={(checked) =>
+                          setConfig({
+                            ...config,
+                            calendarOnly: checked,
+                          })
+                        }
+                        disabled={updating}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="notifications"
+                          className="flex items-center gap-2 text-base font-medium"
+                        >
+                          <Bell className="h-4 w-4" />
+                          Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable system notifications
+                        </p>
+                      </div>
+                      <Switch
+                        id="notifications"
+                        checked={config.notifications}
+                        onCheckedChange={(checked) =>
+                          setConfig({
+                            ...config,
+                            notifications: checked,
+                          })
+                        }
+                        disabled={updating}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 glass-card rounded-lg">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="theme-selector"
+                          className="text-base font-medium"
+                        >
+                          Theme
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Choose your preferred color theme
+                        </p>
+                      </div>
+                      <ThemeToggle />
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5 text-primary" />
+                Manage Holidays
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <HolidayManager
+                onAddHoliday={handleAddHoliday}
+                message={message}
+              />
+
+              <Separator className="my-6 bg-border/50" />
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-foreground">
+                    Custom Holidays
+                  </h3>
+                  <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded-full border border-border/50">
+                    {groupedHolidays().length}{" "}
+                    {groupedHolidays().length === 1 ? "entry" : "entries"}
+                  </span>
+                </div>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {groupedHolidays().map((holiday, index) => (
+                    <div
+                      key={holiday.rangeId || holiday.date || index}
+                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 glass-card rounded-lg hover:bg-glass-bg/50 transition-all duration-200 gap-3 border border-glass-border"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-grow">
+                        <span className="text-xs font-mono bg-primary/15 text-primary px-3 py-1.5 rounded-lg w-fit border border-primary/25 backdrop-blur-sm">
+                          {holiday.isRange
+                            ? holiday.displayDate
+                            : formatDate(holiday.date)}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {holiday.name}
+                        </span>
+                        {holiday.isRange && (
+                          <span className="text-xs text-accent-foreground bg-accent/15 px-2.5 py-1 rounded-lg border border-accent/25 backdrop-blur-sm">
+                            {holiday.dates.length} days
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveHoliday(holiday)}
+                        className="w-full sm:w-auto shadow-lg transition-all duration-200"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {holiday.isRange
+                          ? `Remove ${holiday.dates.length} days`
+                          : "Remove"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                {groupedHolidays().length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No holidays added yet</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Footer />
+        </div>
+      </main>
+    </div>
   );
 }

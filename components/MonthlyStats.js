@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function MonthlyStats({
   attendanceData,
   currentDate,
@@ -49,22 +51,26 @@ export default function MonthlyStats({
   const totalWorkingDays = stats.present + stats.absent + stats.leave;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <StatCard
-        title="Present Days"
-        value={stats.present}
-        color="text-green-400"
-      />
-      <StatCard title="Absent Days" value={stats.absent} color="text-red-400" />
-      <StatCard
-        title="Leaves Taken"
-        value={stats.leave}
-        color="text-yellow-400"
-      />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard
         title="Total Working Days"
         value={totalWorkingDays}
-        color="text-cyan-400"
+        color="text-primary"
+      />
+      <StatCard
+        title="Present Days"
+        value={stats.present}
+        color="text-success-foreground"
+      />
+      <StatCard
+        title="Absent Days"
+        value={stats.absent}
+        color="text-destructive-foreground"
+      />
+      <StatCard
+        title="Leaves Taken"
+        value={stats.leave}
+        color="text-warning-foreground"
       />
     </div>
   );
@@ -72,10 +78,16 @@ export default function MonthlyStats({
 
 function StatCard({ title, value, color, subtitle }) {
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-      <p className="text-sm text-gray-400">{title}</p>
-      <p className={`text-3xl sm:text-4xl font-bold ${color}`}>{value}</p>
-      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
-    </div>
+    <Card className="glass-card py-1 gap-0 transition-transform transition-200 hover:scale-105 cursor-pointer">
+      <CardHeader className="flex flex-row items-center justify-center space-y-0 pb-1 pt-3">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="pb-0 pt-0">
+        <div className={`text-xl font-bold ${color} text-center`}>{value}</div>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground ">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -1,52 +1,107 @@
-const Tooltip = ({ entry, holidayInfo }) => {
-  if (!entry && !holidayInfo) return null;
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "./ui/button";
+
+const getStatusIcon = (status) => {
+  switch (status) {
+    case "Error":
+      return <AlertTriangle className="size-5 " />;
+
+    default:
+      return null;
+  }
+};
+
+const CalendarTooltip = ({ entry, holidayInfo, children }) => {
+  if (!entry && !holidayInfo) return <>{children}</>;
 
   return (
-    <div className="absolute bottom-full mb-2 w-max p-2 bg-gray-900 border border-gray-600 rounded-md shadow-lg text-xs text-left opacity-0 group-hover:opacity-90 transition-opacity pointer-events-none z-10">
-      {holidayInfo && (
-        <p className="font-bold text-blue-400">{holidayInfo.name}</p>
-      )}
-      {entry && holidayInfo && <hr className="my-1 border-gray-600" />}
-      {entry && (
-        <>
-          <p className="font-bold">{entry.date}</p>
-          <p>
-            Status:{" "}
-            <span
-              className={`font-semibold ${
-                entry.dayStatus === "Present"
-                  ? "text-green-400"
-                  : entry.dayStatus === "Absent"
-                  ? "text-red-400"
-                  : entry.dayStatus === "Leave"
-                  ? "text-yellow-400"
-                  : entry.dayStatus === "Error"
-                  ? "text-violet-400"
-                  : "text-gray-400"
-              }`}
-            >
-              {entry.dayStatus}
-            </span>
-          </p>
-          <hr className="my-1 border-gray-600" />
-          {entry.data ? (
-            <>
-              <p>Working Days: {entry.data.workingDays}</p>
-              <p>Present: {entry.data.present}</p>
-              <p>Absent: {entry.data.absent}</p>
-              <p>Leave: {entry.data.leave}</p>
-            </>
-          ) : entry.dayStatus === "Error" && entry.error ? (
-            <div className="text-red-500">
-              <p className="font-semibold">Error Details:</p>
-              <p className="text-xs mt-1">{entry.error}</p>
-            </div>
-          ) : (
-            <p className="text-red-500">Data unavailable due to error</p>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent className="bg-popover border-border backdrop-blur-md text-popover-foreground">
+          {holidayInfo && (
+            <p className="font-bold text-popover-foreground">
+              {holidayInfo.name}
+            </p>
           )}
-        </>
-      )}
-    </div>
+          {entry && holidayInfo && <hr className="my-1 border-border" />}
+          {entry && (
+            <>
+              <p className="font-bold text-popover-foreground">{entry.date}</p>
+              <p className="text-popover-foreground">
+                Status:{" "}
+                <span
+                  className={`font-semibold ${
+                    entry.dayStatus === "Present"
+                      ? "text-success-foreground"
+                      : entry.dayStatus === "Absent"
+                      ? "text-destructive-foreground"
+                      : entry.dayStatus === "Leave"
+                      ? "text-warning-foreground"
+                      : entry.dayStatus === "Error"
+                      ? "text-destructive-foreground"
+                      : entry.dayStatus === "No Change"
+                      ? "text-primary"
+                      : entry.dayStatus === "Unavailable"
+                      ? "text-muted-foreground"
+                      : entry.dayStatus === "Holiday"
+                      ? "text-accent-foreground"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {entry.dayStatus}
+                </span>
+              </p>
+              <hr className="my-1 border-border" />
+              {entry.data ? (
+                <>
+                  <p className="text-popover-foreground">
+                    Working Days:{" "}
+                    <span className="font-medium text-popover-foreground">
+                      {entry.data.workingDays}
+                    </span>
+                  </p>
+                  <p className="text-popover-foreground">
+                    Present:{" "}
+                    <span className="font-medium text-popover-foreground">
+                      {entry.data.present}
+                    </span>
+                  </p>
+                  <p className="text-popover-foreground">
+                    Absent:{" "}
+                    <span className="font-medium text-popover-foreground">
+                      {entry.data.absent}
+                    </span>
+                  </p>
+                  <p className="text-popover-foreground">
+                    Leave:{" "}
+                    <span className="font-medium text-popover-foreground">
+                      {entry.data.leave}
+                    </span>
+                  </p>
+                </>
+              ) : entry.dayStatus === "Error" && entry.error ? (
+                <div className="text-destructive-foreground">
+                  <p className="font-semibold">Error Details:</p>
+                  <p className="text-xs mt-1">{entry.error}</p>
+                </div>
+              ) : (
+                <p className="text-destructive-foreground">
+                  Data unavailable due to error
+                </p>
+              )}
+            </>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -55,6 +110,7 @@ export default function Calendar({
   holidays = [], // Default to empty array
   currentDate,
   setCurrentDate,
+  onCalendarLoading,
 }) {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -72,6 +128,12 @@ export default function Calendar({
   const totalDays = lastDayOfMonth.getDate();
 
   const changeMonth = (offset) => {
+    // Add loading transition
+    if (typeof onCalendarLoading === "function") {
+      onCalendarLoading(true);
+      setTimeout(() => onCalendarLoading(false), 300);
+    }
+
     const newDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + offset,
@@ -91,104 +153,96 @@ export default function Calendar({
   const getStatusColor = (status) => {
     switch (status) {
       case "Present":
-        return "bg-green-500/50 border border-green-400";
+        return "attendance-present backdrop-blur-md";
       case "Absent":
-        return "bg-red-500/50 border border-red-400";
+        return "attendance-absent backdrop-blur-md";
       case "Leave":
-        return "bg-yellow-500/50 border border-yellow-400";
+        return "attendance-leave backdrop-blur-md";
       case "Error":
-        return "bg-purple-500/50 border border-purple-400";
+        return "attendance-error backdrop-blur-md";
       case "No Change":
-        return "bg-gray-600/90 border border-gray-500";
+        return "attendance-no-change backdrop-blur-md";
       case "Unavailable":
-        return "bg-gray-700/05 border border-gray-600";
+        return "attendance-unavailable backdrop-blur-sm";
       case "Holiday":
-        return "bg-blue-500/40 border border-blue-400";
+        return "attendance-holiday backdrop-blur-md";
       default:
-        return "border-transparent";
+        return "border-border/20 backdrop-blur-sm hover:bg-muted/25";
     }
   };
 
   return (
-    <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => changeMonth(-1)}
-          className="bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
-        >
-          &lt;
-        </button>
-        <h2 className="text-xl sm:text-2xl font-semibold text-center">
+    <Card className="glass-card calendar-transition">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <Button variant="outline" size="icon" onClick={() => changeMonth(-1)}>
+          <ChevronLeft className="size-5" />
+        </Button>
+        <CardTitle className="text-xl sm:text-2xl font-semibold text-center">
           {currentDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
           })}
-        </h2>
-        <button
-          onClick={() => changeMonth(1)}
-          className="bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
-        >
-          &gt;
-        </button>
-      </div>
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
-        {daysOfWeek.map((day) => (
-          <div
-            key={day}
-            className="font-bold text-cyan-400 text-xs sm:text-base"
-          >
-            <span className="hidden sm:inline">{day}</span>
-            <span className="sm:hidden">{day.charAt(0)}</span>
-          </div>
-        ))}
-        {Array.from({ length: startingDay }).map((_, index) => (
-          <div key={`empty-${index}`} className="w-full h-12 sm:h-16"></div>
-        ))}
-        {Array.from({ length: totalDays }).map((_, dayIndex) => {
-          const day = dayIndex + 1;
-          const dateStr = `${currentDate.getFullYear()}-${String(
-            currentDate.getMonth() + 1
-          ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-          const dayOfWeek = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            day
-          ).getDay();
+        </CardTitle>
+        <Button variant="outline" size="icon" onClick={() => changeMonth(1)}>
+          <ChevronRight className="size-5" />
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
+          {daysOfWeek.map((day) => (
+            <div
+              key={day}
+              className="font-bold text-primary text-xs sm:text-base"
+            >
+              <span className="hidden sm:inline ">{day}</span>
+              <span className="sm:hidden">{day.charAt(0)}</span>
+            </div>
+          ))}
+          {Array.from({ length: startingDay }).map((_, index) => (
+            <div key={`empty-${index}`} className="w-full h-12 sm:h-16"></div>
+          ))}
+          {Array.from({ length: totalDays }).map((_, dayIndex) => {
+            const day = dayIndex + 1;
+            const dateStr = `${currentDate.getFullYear()}-${String(
+              currentDate.getMonth() + 1
+            ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const dayOfWeek = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              day
+            ).getDay();
 
-          const isWeeklyHoliday = dayOfWeek === 5 || dayOfWeek === 6; // Friday or Saturday
-          const isFutureDate =
-            new Date(currentDate.getFullYear(), currentDate.getMonth(), day) >
-            new Date();
-          const customHoliday = holidays.find((h) => h.date === dateStr);
+            const isWeeklyHoliday = dayOfWeek === 5 || dayOfWeek === 6; // Friday or Saturday
+            const isFutureDate =
+              new Date(currentDate.getFullYear(), currentDate.getMonth(), day) >
+              new Date();
+            const customHoliday = holidays.find((h) => h.date === dateStr);
 
-          const entry = attendanceData.find((d) => d.date === dateStr);
-          let status = entry ? entry.dayStatus : "Unavailable";
+            const entry = attendanceData.find((d) => d.date === dateStr);
+            let status = entry ? entry.dayStatus : "Unavailable";
 
-          if (isFutureDate && status === "Unavailable") {
-            // Don't mark future dates as unavailable unless they are holidays
-            status = null;
-          }
+            // Keep future dates as unavailable (same as past dates without data)
+            // Only holidays should override the unavailable status
 
-          if (isWeeklyHoliday || customHoliday) {
-            status = "Holiday";
-          }
+            if (isWeeklyHoliday || customHoliday) {
+              status = "Holiday";
+            }
 
-          const today = new Date();
-          const isToday =
-            day === today.getDate() &&
-            currentDate.getMonth() === today.getMonth() &&
-            currentDate.getFullYear() === today.getFullYear();
+            const today = new Date();
+            const isToday =
+              day === today.getDate() &&
+              currentDate.getMonth() === today.getMonth() &&
+              currentDate.getFullYear() === today.getFullYear();
 
-          const dayClasses = [
-            "w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-colors text-sm sm:text-base",
-            getStatusColor(status),
-            isToday ? "border-2 border-white/80" : "border",
-          ];
+            const dayClasses = [
+              "relative w-full h-12 sm:h-16 flex items-center justify-center rounded-lg transition-all attendance-base duration-200 text-sm sm:text-base cursor-pointer hover:scale-105",
+              getStatusColor(status),
+              isToday ? "ring-1 ring-primary shadow shadow-primary" : "",
+            ];
 
-          return (
-            <div key={day} className="relative group">
-              <div className={dayClasses.join(" ")}>{day}</div>
-              <Tooltip
+            return (
+              <CalendarTooltip
+                key={day}
                 entry={entry}
                 holidayInfo={
                   customHoliday
@@ -197,11 +251,22 @@ export default function Calendar({
                     ? { name: "Weekly Holiday" }
                     : null
                 }
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
+              >
+                <div className={dayClasses.join(" ")}>
+                  <div className="flex items-center justify-center gap-1">
+                    {(status === "Error" || status === "No Change") &&
+                      getStatusIcon(status)}
+                    <span>{day}</span>
+                    {status !== "Error" &&
+                      status !== "No Change" &&
+                      getStatusIcon(status)}
+                  </div>
+                </div>
+              </CalendarTooltip>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

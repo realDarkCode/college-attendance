@@ -1,1 +1,859 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --glass-bg: rgba(15, 23, 42, 0.25);
+  --glass-border: rgba(30, 41, 59, 0.35);
+  --glass-shadow: ;
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-secondary: var(--card-secondary);
+  --color-card-secondary-foreground: var(--card-secondary-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.75rem;
+  --glass-blur: 16px;
+  --glass-blur-heavy: 24px;
+  --glass-saturate: 180%;
+  --glass-brightness: 1.1;
+  --glass-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate))
+    brightness(var(--glass-brightness));
+  --glass-backdrop-heavy: blur(var(--glass-blur-heavy))
+    saturate(var(--glass-saturate)) brightness(var(--glass-brightness));
+}
+
+/* Light Theme */
+:root,
+[data-theme="light"] {
+  --background-base: #e2e8f0;
+  --foreground: #0f172a;
+
+  /* Card Styles */
+  --card: rgba(226, 232, 240, 0.9);
+  --card-border: rgba(203, 213, 225, 0.8);
+  --card-foreground: #0f172a;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+
+  --card-secondary: rgba(226, 232, 240, 0.7);
+  --card-secondary-foreground: #0f172a;
+
+  --popover: rgba(255, 255, 255, 0.8);
+  --popover-foreground: #0f172a;
+
+  /* Accent Colors */
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --primary-hover: #4338ca;
+
+  --secondary: rgba(79, 70, 229, 0.1);
+  --secondary-foreground: #4f46e5;
+
+  --muted: rgba(148, 163, 184, 0.3);
+  --muted-foreground: #475569;
+
+  --accent: rgba(99, 102, 241, 0.2);
+  --accent-foreground: #4f46e5;
+
+  --destructive: rgba(239, 68, 68, 0.3);
+  --destructive-foreground: #ef4444;
+
+  --success: rgba(34, 197, 94, 0.3);
+  --success-foreground: #22c55e;
+
+  --warning: rgba(245, 158, 11, 0.3);
+  --warning-foreground: #f59e0b;
+
+  --info: rgba(59, 130, 246, 0.2);
+  --info-foreground: #2563eb;
+
+  /* UI Elements */
+  --border: rgba(148, 163, 184, 0.4);
+  --input: rgba(203, 213, 225, 0.9);
+  --ring: #a5b4fc;
+
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme */
+.dark,
+[data-theme="dark"] {
+  --background-base: #0b1120;
+  --foreground: #f1f5f9;
+
+  /* Card Styles */
+  --card: rgba(20, 26, 40, 0.6);
+  --card-border: rgba(30, 41, 59, 0.5);
+  --card-foreground: #f1f5f9;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+  --card-secondary: rgba(30, 41, 59, 0.4);
+  --card-secondary-foreground: #f1f5f9;
+
+  --popover: rgba(20, 26, 40, 0.8);
+  --popover-foreground: #f1f5f9;
+
+  /* Accent Colors */
+  --primary: #818cf8;
+  --primary-foreground: #1e293b;
+  --primary-hover: #6366f1;
+
+  --secondary: rgba(129, 140, 248, 0.1);
+  --secondary-foreground: #a5b4fc;
+
+  --muted: rgba(51, 65, 85, 0.2);
+  --muted-foreground: #94a3b8;
+
+  --accent: rgba(129, 140, 248, 0.2);
+  --accent-foreground: #c7d2fe;
+
+  --destructive: rgba(248, 113, 113, 0.2);
+  --destructive-foreground: #fca5a5;
+
+  --success: rgba(74, 222, 128, 0.2);
+  --success-foreground: #86efac;
+
+  --warning: rgba(251, 191, 36, 0.2);
+  --warning-foreground: #fde047;
+
+  --info: rgba(96, 165, 250, 0.2);
+  --info-foreground: #60a5fa;
+
+  /* UI Elements */
+  --border: rgba(51, 65, 85, 0.4);
+  --input: rgba(30, 41, 59, 0.7);
+  --ring: #818cf8;
+
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: none;
+}
+
+/* Dracula Theme */
+[data-theme="dracula"] {
+  --background-base: #282a36;
+  --foreground: #f8f8f2;
+
+  /* Card Styles */
+  --card: rgba(68, 71, 90, 0.7);
+  --card-border: rgba(98, 114, 164, 0.4);
+  --card-foreground: #f8f8f2;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+
+  --card-secondary: rgba(68, 71, 90, 0.5);
+  --card-secondary-foreground: #f8f8f2;
+
+  --popover: rgba(40, 42, 54, 0.9);
+  --popover-foreground: #f8f8f2;
+
+  /* Accent Colors */
+  --primary: #bd93f9;
+  --primary-foreground: #282a36;
+  --primary-hover: #9580ff;
+
+  --secondary: rgba(139, 233, 253, 0.15);
+  --secondary-foreground: #8be9fd;
+
+  --muted: rgba(98, 114, 164, 0.3);
+  --muted-foreground: #6272a4;
+
+  --accent: rgba(255, 121, 198, 0.2);
+  --accent-foreground: #ff79c6;
+
+  --destructive: rgba(255, 85, 85, 0.3);
+  --destructive-foreground: #ff7979;
+
+  --success: rgba(80, 250, 123, 0.3);
+  --success-foreground: #6bcf7f;
+
+  --warning: rgba(241, 250, 140, 0.3);
+  --warning-foreground: #fdcb6e;
+
+  --info: rgba(139, 233, 253, 0.3);
+  --info-foreground: #8be9fd;
+
+  /* UI Elements */
+  --border: rgba(98, 114, 164, 0.4);
+  --input: rgba(68, 71, 90, 0.8);
+  --ring: #bd93f9;
+
+  /* Glass Effects */
+  --glass-bg: rgba(40, 42, 54, 0.3);
+  --glass-border: rgba(139, 233, 253, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Nord Theme */
+[data-theme="nord"] {
+  --background-base: #2e3440;
+  --foreground: #eceff4;
+
+  /* Card Styles */
+  --card: rgba(59, 66, 82, 0.7);
+  --card-border: rgba(76, 86, 106, 0.5);
+  --card-foreground: #eceff4;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+  --card-secondary: rgba(59, 66, 82, 0.5);
+  --card-secondary-foreground: #eceff4;
+
+  --popover: rgba(46, 52, 64, 0.9);
+  --popover-foreground: #eceff4;
+
+  /* Accent Colors */
+  --primary: #5e81ac;
+  --primary-foreground: #eceff4;
+  --primary-hover: #4c6a87;
+
+  --secondary: rgba(136, 192, 208, 0.15);
+  --secondary-foreground: #88c0d0;
+
+  --muted: rgba(76, 86, 106, 0.3);
+  --muted-foreground: #4c566a;
+
+  --accent: rgba(129, 161, 193, 0.2);
+  --accent-foreground: #81a1c1;
+
+  --destructive: rgba(191, 97, 106, 0.3);
+  --destructive-foreground: #d08770;
+
+  --success: rgba(163, 190, 140, 0.3);
+  --success-foreground: #a3be8c;
+
+  --warning: rgba(235, 203, 139, 0.3);
+  --warning-foreground: #ebcb8b;
+
+  --info: rgba(94, 129, 172, 0.3);
+  --info-foreground: #5e81ac;
+
+  /* UI Elements */
+  --border: rgba(76, 86, 106, 0.4);
+  --input: rgba(59, 66, 82, 0.8);
+  --ring: #5e81ac;
+
+  /* Glass Effects */
+  --glass-bg: rgba(46, 52, 64, 0.4);
+  --glass-border: rgba(136, 192, 208, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Monokai Theme */
+[data-theme="monokai"] {
+  --background-base: #272822;
+  --foreground: #f8f8f2;
+
+  /* Card Styles */
+  --card: rgba(52, 52, 46, 0.7);
+  --card-border: rgba(117, 113, 94, 0.4);
+  --card-foreground: #f8f8f2;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+
+  --card-secondary: rgba(52, 52, 46, 0.5);
+  --card-secondary-foreground: #f8f8f2;
+
+  --popover: rgba(39, 40, 34, 0.9);
+  --popover-foreground: #f8f8f2;
+
+  /* Accent Colors */
+  --primary: #a6e22e;
+  --primary-foreground: #272822;
+  --primary-hover: #7fb81f;
+
+  --secondary: rgba(102, 217, 239, 0.15);
+  --secondary-foreground: #66d9ef;
+
+  --muted: rgba(117, 113, 94, 0.3);
+  --muted-foreground: #75715e;
+
+  --accent: rgba(253, 151, 31, 0.2);
+  --accent-foreground: #fd971f;
+
+  --destructive: rgba(249, 38, 114, 0.3);
+  --destructive-foreground: #ff6b9d;
+
+  --success: rgba(166, 226, 46, 0.3);
+  --success-foreground: #a6e22e;
+
+  --warning: rgba(230, 219, 116, 0.3);
+  --warning-foreground: #f9ca24;
+
+  --info: rgba(102, 217, 239, 0.3);
+  --info-foreground: #66d9ef;
+
+  /* UI Elements */
+  --border: rgba(117, 113, 94, 0.4);
+  --input: rgba(52, 52, 46, 0.8);
+  --ring: #a6e22e;
+
+  /* Glass Effects */
+  --glass-bg: rgba(39, 40, 34, 0.4);
+  --glass-border: rgba(166, 226, 46, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* DarkCode Brand Theme */
+[data-theme="darkcode"] {
+  --background-base: #1a1a1a;
+  --foreground: #f0f0f0;
+
+  /* Card Styles */
+  --card: rgba(42, 42, 42, 0.8);
+  --card-border: rgba(59, 130, 246, 0.3);
+  --card-foreground: #f0f0f0;
+  --card-shadow: none;
+
+  --card-secondary: rgba(42, 42, 42, 0.6);
+  --card-secondary-foreground: #f0f0f0;
+
+  --popover: rgba(26, 26, 26, 0.95);
+  --popover-foreground: #f0f0f0;
+
+  /* Accent Colors */
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --primary-hover: #2563eb;
+
+  --secondary: rgba(59, 130, 246, 0.15);
+  --secondary-foreground: #60a5fa;
+
+  --muted: rgba(75, 85, 99, 0.4);
+  --muted-foreground: #9ca3af;
+
+  --accent: rgba(96, 165, 250, 0.2);
+  --accent-foreground: #93c5fd;
+
+  --destructive: rgba(239, 68, 68, 0.3);
+  --destructive-foreground: #f87171;
+
+  --success: rgba(34, 197, 94, 0.3);
+  --success-foreground: #4ade80;
+
+  --warning: rgba(245, 158, 11, 0.3);
+  --warning-foreground: #fbbf24;
+
+  --info: rgba(59, 130, 246, 0.3);
+  --info-foreground: #60a5fa;
+
+  /* UI Elements */
+  --border: rgba(75, 85, 99, 0.4);
+  --input: rgba(42, 42, 42, 0.8);
+  --ring: #3b82f6;
+
+  /* Glass Effects */
+  --glass-bg: rgba(26, 26, 26, 0.6);
+  --glass-border: rgba(59, 130, 246, 0.2);
+  --glass-shadow: none;
+}
+
+/* Ocean Theme */
+[data-theme="ocean"] {
+  --background-base: #0f111a;
+  --foreground: #e2e8f0;
+
+  /* Card Styles */
+  --card: rgba(26, 35, 56, 0.7);
+  --card-border: rgba(52, 79, 113, 0.4);
+  --card-foreground: #e2e8f0;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+
+  --card-secondary: rgba(26, 35, 56, 0.5);
+  --card-secondary-foreground: #e2e8f0;
+
+  --popover: rgba(15, 17, 26, 0.9);
+  --popover-foreground: #e2e8f0;
+
+  /* Accent Colors */
+  --primary: #4fb3d9;
+  --primary-foreground: #0f111a;
+  --primary-hover: #2a9bc7;
+
+  --secondary: rgba(95, 205, 228, 0.15);
+  --secondary-foreground: #5fcde4;
+
+  --muted: rgba(52, 79, 113, 0.3);
+  --muted-foreground: #344f71;
+
+  --accent: rgba(134, 239, 172, 0.2);
+  --accent-foreground: #86efac;
+
+  --destructive: rgba(251, 113, 133, 0.3);
+  --destructive-foreground: #fda4af;
+
+  --success: rgba(134, 239, 172, 0.3);
+  --success-foreground: #86efac;
+
+  --warning: rgba(251, 191, 36, 0.3);
+  --warning-foreground: #fde047;
+
+  --info: rgba(79, 179, 217, 0.3);
+  --info-foreground: #4fb3d9;
+
+  /* UI Elements */
+  --border: rgba(52, 79, 113, 0.4);
+  --input: rgba(26, 35, 56, 0.8);
+  --ring: #4fb3d9;
+
+  /* Glass Effects */
+  --glass-bg: rgba(15, 17, 26, 0.4);
+  --glass-border: rgba(79, 179, 217, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Forest Theme */
+[data-theme="forest"] {
+  --background-base: #1a2332;
+  --foreground: #e8f5e8;
+
+  /* Card Styles */
+  --card: rgba(42, 60, 80, 0.7);
+  --card-border: rgba(76, 128, 96, 0.4);
+  --card-foreground: #e8f5e8;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+  --card-secondary: rgba(42, 60, 80, 0.5);
+  --card-secondary-foreground: #e8f5e8;
+
+  --popover: rgba(26, 35, 50, 0.9);
+  --popover-foreground: #e8f5e8;
+
+  /* Accent Colors */
+  --primary: #4c956c;
+  --primary-foreground: #d4e5d4;
+  --primary-hover: #3d7a56;
+
+  --secondary: rgba(130, 204, 156, 0.15);
+  --secondary-foreground: #82cc9c;
+
+  --muted: rgba(76, 128, 96, 0.3);
+  --muted-foreground: #4c8060;
+
+  --accent: rgba(165, 214, 167, 0.2);
+  --accent-foreground: #a5d6a7;
+
+  --destructive: rgba(244, 67, 54, 0.3);
+  --destructive-foreground: #ff7961;
+
+  --success: rgba(130, 204, 156, 0.3);
+  --success-foreground: #82cc9c;
+
+  --warning: rgba(255, 193, 7, 0.3);
+  --warning-foreground: #ffcc02;
+
+  --info: rgba(76, 149, 108, 0.3);
+  --info-foreground: #4c956c;
+
+  /* UI Elements */
+  --border: rgba(76, 128, 96, 0.4);
+  --input: rgba(42, 60, 80, 0.8);
+  --ring: #4c956c;
+
+  /* Glass Effects */
+  --glass-bg: rgba(26, 35, 50, 0.4);
+  --glass-border: rgba(76, 149, 108, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Attendance Status Classes */
+.attendance-base {
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease-in-out;
+  background: color-mix(in srgb, var(--muted) 60%, var(--background-base) 40%);
+}
+
+.attendance-present {
+  background-color: var(--success);
+  color: var(--success-foreground);
+  border-color: var(--success-foreground) / 0.5;
+}
+
+.attendance-absent,
+.attendance-error {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+  border-color: var(--destructive-foreground) / 0.5;
+}
+
+.attendance-leave {
+  background-color: var(--warning);
+  color: var(--warning-foreground);
+  border-color: var(--warning-foreground) / 0.5;
+}
+
+.attendance-holiday {
+  background-color: var(--info);
+  color: var(--info-foreground);
+  border-color: var(--info-foreground) / 0.5;
+}
+
+.attendance-unavailable {
+  background-color: color-mix(
+    in srgb,
+    var(--muted) 40%,
+    var(--background-base) 60%
+  );
+  color: var(--muted-foreground);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.attendance-no-change {
+  background-color: color-mix(in srgb, var(--muted) 70%, var(--foreground) 5%);
+  color: var(--accent-foreground);
+}
+
+/* Glassmorphism Base Styles */
+body {
+  background-color: var(--background-base);
+  color: var(--foreground);
+  min-height: 100vh;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.glass-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      var(--primary) 0%,
+      transparent 30%
+    ),
+    radial-gradient(circle at 90% 80%, var(--accent) 0%, transparent 30%),
+    radial-gradient(circle at 50% 50%, var(--secondary) 0%, transparent 20%);
+  opacity: 0.3;
+  filter: blur(100px);
+  z-index: -1;
+}
+
+.dark .glass-container::before {
+  opacity: 0.4;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+.glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    transparent,
+    rgba(255, 255, 255, 0.04)
+  );
+}
+
+.dark .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+}
+
+.dark .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+}
+
+.dark .glass-card::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    transparent,
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+.glass-card:hover {
+  background: color-mix(in srgb, var(--glass-bg) 80%, var(--foreground) 5%);
+  border-color: color-mix(
+    in srgb,
+    var(--glass-border) 80%,
+    var(--foreground) 10%
+  );
+  transform: translateY(-1px);
+}
+
+/* Layered glass cards with enhanced blur */
+.glass-card .glass-card,
+.glass-card-layered {
+  background: color-mix(in srgb, var(--glass-bg) 40%, transparent);
+  -webkit-backdrop-filter: var(--glass-backdrop-heavy);
+  backdrop-filter: var(--glass-backdrop-heavy);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 50%, transparent);
+}
+
+/* Override default card styles from library */
+.card {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Enhanced Card Backgrounds */
+.bg-card-secondary {
+  background: var(--card-secondary);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--card-border);
+}
+
+/* Additional Glassmorphism Utilities */
+.glass-light {
+  background: color-mix(in srgb, var(--glass-bg) 50%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 40%, transparent);
+}
+
+.glass-medium {
+  background: color-mix(in srgb, var(--glass-bg) 75%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent);
+}
+
+.glass-heavy {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+}
+
+/* Theme-specific border adjustments */
+[data-theme="dracula"] .glass-card::before,
+[data-theme="nord"] .glass-card::before,
+[data-theme="monokai"] .glass-card::before,
+[data-theme="ocean"] .glass-card::before,
+[data-theme="forest"] .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.03),
+    transparent
+  );
+}
+
+[data-theme="darkcode"] .glass-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.05),
+    transparent
+  );
+}
+
+[data-theme="dracula"] .glass-card::after,
+[data-theme="nord"] .glass-card::after,
+[data-theme="monokai"] .glass-card::after,
+[data-theme="ocean"] .glass-card::after,
+[data-theme="forest"] .glass-card::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    transparent,
+    rgba(255, 255, 255, 0.01)
+  );
+}
+
+[data-theme="darkcode"] .glass-card::after {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.03),
+    transparent,
+    rgba(59, 130, 246, 0.01)
+  );
+}
+
+/* Page transition effects */
+.page-transition {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: pageEnter 0.4s ease-out forwards;
+}
+
+@keyframes pageEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--radius);
+  min-height: 1rem;
+}
+
+.dark .loading-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Calendar transition effects */
+.calendar-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Calendar specific styling - Keep for calendar component */
+[data-slot="calendar"] {
+  background: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-slot="calendar"] button {
+  color: #000000 !important;
+}
+
+.dark [data-slot="calendar"] button {
+  color: var(--foreground) !important;
+}
+
+.dark [data-slot="calendar"] button[data-selected-single="true"] {
+  color: var(--primary-foreground) !important;
+}
+
+.dark [data-slot="calendar"] .rdp-day_today button,
+.dark [data-slot="calendar"] button[data-today="true"] {
+  color: var(--accent-foreground) !important;
+}
+
+[data-slot="calendar"] button[data-selected-single="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-slot="calendar"] .rdp-day_today button,
+[data-slot="calendar"] button[data-today="true"] {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border: 1px solid var(--accent) !important;
+  font-weight: 600;
+}
+
+[data-slot="calendar"] button[data-range-start="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+[data-slot="calendar"] button[data-range-end="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-radius: 0 6px 6px 0 !important;
+}
+
+[data-slot="calendar"] button[data-range-middle="true"] {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border-radius: 0 !important;
+}
+
+[data-slot="calendar"]
+  button:hover:not([data-selected-single="true"]):not(
+    [data-range-start="true"]
+  ):not([data-range-end="true"]):not([data-range-middle="true"]) {
+  background: var(--accent) / 50 !important;
+  color: var(--accent-foreground) !important;
+}
