@@ -1,5 +1,5 @@
 @echo off
-title College Attendance Tracker - Auto Setup
+title Attendance Tracker - Auto Setup
 color 0A
 
 :: Handle uninstall command
@@ -11,10 +11,10 @@ if "%1"=="test" goto test_services
 :: Main setup
 :main_setup
 echo ================================================================
-echo        COLLEGE ATTENDANCE TRACKER - AUTO SETUP
+echo            ATTENDANCE TRACKER - AUTO SETUP
 echo ================================================================
 echo.
-echo This will configure the College Attendance Tracker to run 
+echo This will configure the Attendance Tracker to run 
 echo automatically in the background on every Windows startup.
 echo.
 
@@ -42,10 +42,10 @@ echo Set fso = Nothing
 echo Creating service runner...
 (
 echo @echo off
-echo title College Attendance Tracker - Background Service
+echo title Attendance Tracker - Background Service
 echo cd /d "%SCRIPT_DIR%"
 echo echo Starting web application...
-echo start "College Attendance - Web App" /min cmd /c "call start.bat"
+echo start "Attendance Tracker - Web App" /min cmd /c "call start.bat"
 echo echo Waiting for web app to initialize...
 echo timeout /t 15 /nobreak ^>nul
 echo echo Starting scraper service loop...
@@ -59,11 +59,11 @@ echo goto scraper_loop
 
 :: Add to Windows startup using registry
 echo Adding to Windows startup registry...
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "CollegeAttendanceTracker" /t REG_SZ /d "wscript.exe \"%SCRIPT_DIR%auto-silent.vbs\"" /f >nul 2>&1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "AttendanceTracker" /t REG_SZ /d "wscript.exe \"%SCRIPT_DIR%auto-silent.vbs\"" /f >nul 2>&1
 
 if %errorlevel% equ 0 (
     echo.
-    echo ✅ SUCCESS: College Attendance Tracker configured for auto-startup!
+    echo ✅ SUCCESS: Attendance Tracker configured for auto-startup!
     echo.
     echo What happens now:
     echo • Web application will start automatically on Windows boot
@@ -85,11 +85,11 @@ goto end
 
 :: Handle uninstall command
 :uninstall_startup
-echo Removing College Attendance Tracker from auto-startup...
+echo Removing Attendance Tracker from auto-startup...
 echo.
 
 :: Remove from registry
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "CollegeAttendanceTracker" /f >nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "AttendanceTracker" /f >nul 2>&1
 
 :: Clean up created files
 del "%~dp0auto-silent.vbs" >nul 2>&1
@@ -97,7 +97,7 @@ del "%~dp0auto-service.bat" >nul 2>&1
 
 if %errorlevel% equ 0 (
     echo ✅ SUCCESS: Auto-startup removed!
-    echo College Attendance Tracker will no longer start automatically.
+    echo Attendance Tracker will no longer start automatically.
 ) else (
     echo ✅ Auto-startup removed (or was not configured).
 )
@@ -110,7 +110,7 @@ echo Testing services without configuring auto-startup...
 echo.
 cd /d "%~dp0"
 echo Starting web application...
-start "College Attendance - Web App" /min cmd /c "call start.bat"
+start "Attendance Tracker - Web App" /min cmd /c "call start.bat"
 timeout /t 15 /nobreak >nul
 echo.
 echo Running scraper once...

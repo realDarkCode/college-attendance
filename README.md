@@ -1,211 +1,261 @@
-# College Attendance Tracker
+# Attendance Tracker v1.0
 
-A full-stack Next.js application designed to automatically scrape, display, and manage college attendance data. It provides a user-friendly, responsive interface to view attendance statistics, manage credentials, and configure holidays.
+A beautiful, feature-rich Next.js application for automated attendance tracking with modern UI and multiple customizable themes.
 
-## Project Idea
+## 📋 Table of Contents
 
-One of the policies at our college is that if a student is absent for more than two days in a month, their student ID is automatically deactivated. However, a major limitation is that there is no way to view which specific days were marked as absent—only the total number of present, absent, and leave days for the entire academic year is shown on the college website.
+- [✨ Key Features](#-key-features)
+- [📸 Screenshots](#-screenshots)
+- [💡 Project Idea](#-project-idea)
+- [🚀 What's New in v1.0](#-whats-new-in-v10)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📥 Installation](#-installation)
+  - [Prerequisites](#prerequisites)
+  - [Quick Setup (Windows)](#quick-setup-windows)
+  - [Auto-Startup (Optional)](#auto-startup-optional)
+  - [Manual Setup (Advanced)](#manual-setup-advanced)
+- [🚀 Usage](#-usage)
+  - [First Time Setup](#first-time-setup)
+  - [Daily Usage](#daily-usage)
+- [📁 File Structure](#-file-structure)
+- [🏢 Customization for Different Institutions](#-customization-for-different-institutions)
+- [🤝 Contributing](#-contributing)
 
-This lack of visibility can be problematic. At times, I might forget to punch my ID card, or even question whether it was recorded properly.
+## ✨ Key Features
 
-This led me to the idea of building a personal project—an application that automatically tracks my daily attendance and visualizes the data in a calendar format. Also, since I hadn’t yet contributed under the “Vibe Coding” initiative, I figured this was a good opportunity to get started—and to test whether our junior co-programmer would really step up to the task.
-
-I quickly drafted a rough concept in about 20–30 minutes and used AI to flesh out the details. Step by step, I started feeding instructions—not to a computer this time, but to an AI assistant. Within just a couple of hours, an alpha version of the app was up and running.
-
-After a months of usage, the outcome has been very promising.
-
-## Screenshots
-
-<div align="center">
-  <img src="docs/1.png" alt="College Attendance Tracker - Main Dashboard" width="800"/>
-  <p><em>Main Dashboard with Monthly Statistics and Interactive Calendar</em></p>
-  
-  <img src="docs/2.png" alt="College Attendance Tracker - Calendar View" width="800"/>
-  <p><em>Setting page with credential and holiday management</em></p>
-</div>
-
-## Key Features
-
-- 🔐 **Automated Login & Data Scraping**: Automatically logs into the college website and fetches daily attendance data without manual intervention
-- 🧩 **Auto-Refresh on Startup**: Automatically refreshes data when the computer starts up, eliminating the need for daily manual updates
-- 📆 **Interactive Calendar Visualization**: Beautiful calendar interface showing daily status — Present, Absent, Leave, Error, or Holiday with color-coded indicators
+- 🔐 **Automated Login & Data Scraping**: Automatically logs into the website and fetches daily attendance data without manual intervention
+- 🔄 **Auto-Refresh on Startup**: Automatically refreshes data when the computer starts up, eliminating the need for daily manual updates
+- 📅 **Interactive Calendar Visualization**: Beautiful calendar interface showing daily status — Present, Absent, Leave, Error, or Holiday with color-coded indicators
 - 📊 **Monthly Statistics Dashboard**: Clear overview of total absent, present, and leave counts for each month, excluding holidays and errors
-- 🎯 **Customizable Settings**: Set custom holidays and configure college website credentials from the Settings page, making it usable by anyone
+- ⚙️ **Customizable Settings**: Set custom holidays and configure website credentials from the Settings page, making it usable by anyone
+- 🔔 **Desktop Notifications**: System notifications for important updates and status changes
 - 🗄️ **Local Data Storage**: All data is stored locally for maximum security and privacy
 - 🚨 **Comprehensive Error Handling**: Detailed error tracking and reporting when scraping fails (network issues, invalid credentials, etc.)
-- ⏰ **Smart Timing Logic**: Intelligent auto-fetch that only runs after 10 AM to ensure fresh daily data
-- � **Fully Responsive Design**: Works seamlessly on both mobile and desktop devices
 - 🏖️ **Holiday Management**: Add and remove custom named holidays that are excluded from attendance calculations
-- 🔄 **Real-time Status Updates**: Live progress tracking during data scraping with detailed status messages
+- 🎨 **8 Beautiful Themes**: Light, Dark, Dracula, Nord, Monokai, DarkCode, Ocean, and Forest themes with modern sleek design
 
-## Tech Stack
+## 📸 Screenshots
 
-- **Framework**: [Next.js](https://nextjs.org/)
-- **UI Library**: [React](https://reactjs.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Web Scraping**: [Puppeteer](https://pptr.dev/)
-- **Language**: JavaScript/Node.js
+<div align="center">
+  <img src="docs/1.png" alt="Attendance Tracker - Dark Theme Dashboard" width="800"/>
+  <p><em>Dark Theme - Main Dashboard with Monthly Statistics and Interactive Calendar</em></p>
+  
+  <img src="docs/2.png" alt="Attendance Tracker - Light Theme" width="800"/>
+  <p><em>Light Theme - Clean and Modern Interface</em></p>
 
-## Setup and Installation
+  <img src="docs/3.png" alt="Attendance Tracker - Alternative Theme" width="800"/>
+  <p><em>Custom Theme - One of 8 Available Themes</em></p>
+  
+  <img src="docs/4.png" alt="Attendance Tracker - Settings Page" width="800"/>
+  <p><em>Settings Page - Credential Management, Holiday Setup, and Theme Selection</em></p>
+</div>
+
+## 💡 Project Idea
+
+Our college has a policy: if a student is absent for more than two days in a month, their student ID gets automatically deactivated. However, there's a major limitation - the college website only shows total counts of present, absent, and leave days for the entire academic year, without revealing which specific days were marked as absent.
+
+This lack of visibility became problematic. I often forgot to punch my ID card or questioned whether it was recorded properly.
+
+The solution? Build a personal attendance tracker that automatically monitors daily attendance and visualizes it in a calendar format. What started as a 30-minute concept drafted with AI assistance evolved into a full-featured application within hours.
+
+After months of usage and continuous improvements, it has become a comprehensive attendance management system that helps students stay on top of their attendance records with beautiful visualizations and smart automation.
+
+## 🚀 What's New in v1.0
+
+- **Shadcn/ui:** Migrated to shadcn/ui component library
+- **Themes:** Added modern design system with backdrop blur effects and 8 more themes
+- **Date Range Selection**: Add multiple consecutive days as holidays in one action
+- **Visual Calendar Picker**: Intuitive date selection with calendar interface
+- **Desktop Notifications**: System notifications for attendance updates
+- **User Control**: Easy customization in settings
+- **Data Validation**: Enhanced input validation throughout the application
+- **Performance Optimization**: Faster rendering and smoother interactions
+- **Bug Fixes**: Resolved date calculation issues in holiday range selection
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) - React-based full-stack framework
+- **UI Library**: [React](https://reactjs.org/) - Modern component-based UI
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework with custom properties
+- **Component Library**: [shadcn/ui](https://ui.shadcn.com/) - Modern, accessible React components
+- **Web Scraping**: [Puppeteer](https://pptr.dev/) - Headless Chrome automation
+- **Icons**: [Lucide React](https://lucide.dev/) - Beautiful, customizable icons
+- **Language**: JavaScript/Node.js - Full-stack JavaScript development
+
+## 📥 Installation
 
 ### Prerequisites
 
-Before setting up the College Attendance Tracker, make sure you have **Node.js** installed on your system.
+Make sure you have **Node.js** installed on your system:
 
-**Download and Install Node.js:**
 1. Visit [https://nodejs.org/](https://nodejs.org/)
-2. Download the LTS (Long Term Support) version
-3. Run the installer and follow the installation wizard
-4. Verify installation by opening Command Prompt and running:
-   ```bash
-   node --version
-   npm --version
-   ```
+2. Download the LTS version and install it
+3. Verify installation: `node --version` and `npm --version`
 
-### Windows Setup (Recommended)
+## Quick Setup (Windows)
 
-**1. Download or Clone the Project:**
-```bash
-git clone <repository-url>
-cd college-attendance-dev
-```
+**1. Download the Project:**
 
-**2. Run Setup (One-time installation):**
+- Go to the GitHub repository
+- Click the green **"Code"** button on the top right
+- Select **"Download ZIP"**
+- Extract the ZIP file to your desired location (e.g., `C:\attendance-tracker`)
+
+**2. One-Click Setup:**
+
 ```batch
-# Double-click this file or run in Command Prompt
+# Double-click on setup.bat
 setup.bat
 ```
-This will:
-- Install all required dependencies (`npm install`)
-- Create necessary data files and folders
-- Build the production version of the application
-- Set up the project structure
+
+- Installs dependencies in order to run this application
+- Initializes data files
+- Builds project with an optimized production version
 
 **3. Start the Application:**
+
 ```batch
-# Double-click this file or run in Command Prompt
+# Double-click start.bat
 start.bat
 ```
-This will:
-- Start the web application on `http://localhost:4040`
-- Keep the application running until you close the window
 
-**4. Configure Your Credentials:**
-- Open your browser and go to `http://localhost:4040`
-- Click on "Settings" in the top right
-- Enter your college website username and password
-- Configure any custom holidays if needed
+- Opens the app at `http://localhost:4040`
+- Keeps running until you close the window
 
-### Optional: Automatic Startup (Windows)
+**4. Configure Settings:**
 
-If you want the application to **automatically start and scrape data in the background** every time your computer boots up:
+- Go to `http://localhost:4040` in your browser
+- Click "Settings" → Enter your college credentials
+- Add holidays if needed
+- Choose your favorite theme!
 
-**Run Auto-Setup (One-time configuration):**
+### Auto-Startup (Optional)
+
+For automatic background operation:
+
 ```batch
-# Double-click this file or run in Command Prompt
+# Double-click auto.bat (one-time setup)
 auto.bat
 ```
 
-This will:
-- ✅ Configure automatic startup on Windows boot
-- ✅ Start the web application automatically in background
-- ✅ Run attendance scraper every 3 hours automatically
-- ✅ Work completely in the background
-- ✅ Continue running until computer shutdown
+- Starts automatically on Windows boot
+- Runs silently in background
+- Auto-scrapes data every 3 hours
+- Access anytime at `http://localhost:4040`
 
-**After running `auto.bat` once:**
-- Restart your computer to test automatic startup
-- The application will be available at `http://localhost:4040`
-- Attendance data will be scraped automatically every 3 hours
-- Everything runs silently in the background
+### Manual Setup (Advanced)
 
-**To remove automatic startup:**
-```batch
-auto.bat uninstall
-```
+<details>
+<summary>Click to expand manual installation steps</summary>
 
-### Manual Setup (Advanced Users)
+1. **Download & Extract**: Download ZIP file and extract
+2. **Install Dependencies**: `npm install`
+3. **Create Data Files**:
+   ```bash
+   mkdir data
+   echo {} > data/config.json
+   echo [] > data/attendance.json
+   echo [] > data/holidays.json
+   echo {} > data/scrape-status.json
+   ```
+4. **Build**: `npm run build`
+5. **Start**: `npm run start`
+6. **Access**: Open `http://localhost:3000`
 
-**1. Clone the repository:**
+</details>
 
-```bash
-git clone <repository-url>
-cd college-attendance-dev
-```
-
-**2. Install dependencies:**
-
-```bash
-npm install
-```
-
-**3. Set up data files:**
-The application uses local JSON files for data persistence. Create a `data` directory in the project root and add the following files:
-
-- `config.json`: Stores login credentials and user preferences.
-  ```json
-  { "username": "YOUR_USERNAME", "password": "YOUR_PASSWORD", "calendarOnly": false, "notifications": true }
-  ```
-- `holidays.json`: Stores custom holidays with names.
-  ```json
-  []
-  ```
-- `attendance.json`: Stores scraped attendance data (initially empty).
-  ```json
-  []
-  ```
-- `scrape-status.json`: Stores scraper status information.
-  ```json
-  { "lastRun": "", "status": "idle", "progress": 0 }
-  ```
-
-**4. Build the application:**
-
-```bash
-npm run build
-```
-
-**5. Run the production server:**
-
-```bash
-npm run start
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
-
-## Usage
+## 🚀 Usage
 
 ### First Time Setup
-1. **Run Setup**: Double-click `setup.bat` (Windows) or follow manual setup instructions
-2. **Start Application**: Double-click `start.bat` or run `npm run start`
-3. **Configure Credentials**: Go to Settings page and enter your college login details
-4. **Add Holidays**: Add any custom holidays that should be excluded from attendance calculations
+
+1. **Download & Setup**: Download ZIP → Run `setup.bat` → Run `start.bat`
+2. **Configure**: Open `http://localhost:4040` → Go to Settings
+3. **Enter Credentials**: Add your college login details
+4. **Customize**: Choose theme, add holidays, set preferences
 
 ### Daily Usage
-- **Manual Mode**: Start the application with `start.bat` when needed
-- **Automatic Mode**: Set up with `auto.bat` for hands-free operation
 
-### Scraper Behavior
-- Automatically runs after 10 AM to ensure fresh daily data
-- Updates existing entries if run multiple times in a day
-- Shows detailed progress and error information
+- **Manual**: Double-click `start.bat` when needed
+- **Auto**: Run `auto.bat` once for hands-free operation
+- **Access**: Always available at `http://localhost:4040`
 
-## File Structure
+## 📁 File Structure
 
 ```
-college-attendance-dev/
-├── setup.bat              # Windows setup script (run once)
-├── start.bat               # Start application manually
-├── auto.bat                # Configure automatic startup (optional)
-├── components/             # React components
-├── pages/                  # Next.js pages and API routes
-├── scripts/                # Automation scripts
-├── data/                   # Local data storage
-│   ├── attendance.json     # Attendance records
-│   ├── config.json         # User settings
-│   ├── holidays.json       # Custom holidays
-│   └── scrape-status.json  # Scraper status
-└── docs/                   # Documentation and screenshots
+attendance-tracker/
+├── 🔧 Setup Files
+│   ├── setup.bat              # Windows setup script (run once)
+│   ├── start.bat               # Start application manually
+│   ├── auto.bat                # Configure automatic startup (optional)
+│   └── next.config.js          # Next.js configuration
+│
+├── 🎨 UI Components
+│   ├── components/
+│   │   ├── Calendar.js         # Interactive calendar component
+│   │   ├── MonthlyStats.js     # Monthly statistics display
+│   │   ├── HolidayManager.js   # Holiday management interface
+│   │   ├── Footer.js           # Shared footer component
+│   │   └── ui/                 # shadcn/ui components
+│   │       ├── button.jsx      # Custom button component
+│   │       ├── calendar.jsx    # Calendar picker component
+│   │       ├── card.jsx        # Card container component
+│   │       ├── input.jsx       # Input field component
+│   │       ├── theme-toggle.jsx # Theme selection component
+│   │       └── ... (more UI components)
+│   │
+├── 📄 Pages & API
+│   ├── pages/
+│   │   ├── index.js            # Main home page with calendar
+│   │   ├── settings.js         # Settings and configuration page
+│   │   ├── _app.js             # App wrapper with theme provider
+│   │   ├── _document.js        # Document with theme initialization
+│   │   └── api/                # Backend API routes
+│   │       ├── attendance.js   # Attendance data endpoints
+│   │       ├── config.js       # Configuration management endpoints
+│   │       ├── holidays.js     # Holiday management endpoints
+│   │       ├── scrape.js       # Scraping trigger endpoints
+│   │       └── scrape-status.js # Scraping progress tracking endpoints
+│   │
+├── 🎭 Styling & Themes
+│   ├── styles/
+│   │   └── globals.css         # Global styles with 8 theme definitions
+│   ├── lib/
+│   │   ├── theme-context.js    # Theme management context
+│   │   ├── utils.js            # Utility functions
+│   │   └── scraper.js          # Web scraping logic (MAIN SCRAPER FILE)
+│   │
+├── 📊 Data Storage
+│   ├── data/                   # Local JSON data files
+│   │   ├── attendance.json     # Daily attendance records
+│   │   ├── config.json         # User credentials & preferences
+│   │   ├── holidays.json       # Custom holidays with date ranges
+│   │   └── scrape-status.json  # Real-time scraping progress
+│   │
+├── 🤖 Automation
+│   ├── scripts/
+│   │   └── run-scraper.js      # Automated scraping script
+│   │
+└── 📸 Documentation
+    └── docs/                   # Screenshots and documentation
+        ├── 1.png               # Dark theme dashboard
+        ├── 2.png               # Light theme interface
+        ├── 3.png               # Alternative theme example
+        └── 4.png               # Settings page
 ```
 
+## 🏢 Customization for Different Institutions
 
+**Want to use this for your office/institution/college?**
+
+You just need to update the `pages/api/scrape.js` file and adjust the scraping logic to work with your institution's website. The scraper uses Puppeteer to automate login and data extraction - simply modify the selectors and navigation logic to match your portal's structure.
+
+All other features (calendar visualization, holiday management, themes, notifications) will work seamlessly with your customized scraper!
+
+## 🤝 Contributing
+
+This project welcomes contributions! Whether it's bug fixes, feature additions, or theme improvements, feel free to:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request

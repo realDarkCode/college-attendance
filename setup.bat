@@ -1,10 +1,10 @@
 @echo off
-title Installing College Attendance Tracker
+title Installing Attendance Tracker
 echo =====================================
-echo     College Attendance Tracker Setup
+echo       Attendance Tracker Setup
 echo =====================================
 echo.
-echo Starting installation of College Attendance Tracker...
+echo Starting installation of Attendance Tracker...
 echo.
 echo Step 1: Installing dependencies...
 call npm install

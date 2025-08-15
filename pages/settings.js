@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import HolidayManager from "@/components/HolidayManager";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +12,8 @@ import {
   AlertCircle,
   Bell,
   CalendarDays,
-  CodeXml,
   Eye,
   EyeOff,
-  HeartIcon,
   Home,
   Save,
   ShieldUser,
@@ -595,23 +594,7 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Footer */}
-          <footer className="mt-12 py-8 text-center glass-card">
-            <div className="text-sm text-base-foreground flex items-center justify-center gap-1">
-              Made with{" "}
-              <HeartIcon className="inline size-5 text-destructive-foreground" />{" "}
-              by{" "}
-              <a
-                href="https://github.com/realDarkCode"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 text-primary transition-colors hover:text-underline"
-              >
-                <CodeXml className="inline size-5  text-primary" />
-                DarkCode
-              </a>
-            </div>
-          </footer>
+          <Footer />
         </div>
       </main>
     </div>

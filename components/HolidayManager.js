@@ -32,6 +32,14 @@ const HolidayManager = ({ onAddHoliday, message }) => {
     });
   };
 
+  // Helper function to convert Date to YYYY-MM-DD in local timezone
+  const formatDateToLocalISO = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const formatDateRange = (range) => {
     if (!range?.from) return "Select date range";
     if (!range?.to) return `From ${formatDate(range.from)}`;
@@ -63,7 +71,7 @@ const HolidayManager = ({ onAddHoliday, message }) => {
     }
 
     setIsSubmitting(true);
-    const formattedDate = singleDate.toISOString().split("T")[0];
+    const formattedDate = formatDateToLocalISO(singleDate);
     await onAddHoliday({ date: formattedDate, name: holidayName.trim() });
 
     // Reset form on success
@@ -87,12 +95,14 @@ const HolidayManager = ({ onAddHoliday, message }) => {
     const startDate = new Date(dateRange.from);
     const endDate = dateRange.to ? new Date(dateRange.to) : startDate;
 
-    for (
-      let d = new Date(startDate);
-      d <= endDate;
-      d.setDate(d.getDate() + 1)
-    ) {
-      dates.push(new Date(d).toISOString().split("T")[0]);
+    // Calculate the difference in days
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+
+    for (let i = 0; i < daysDiff; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+      dates.push(formatDateToLocalISO(currentDate));
     }
 
     // Generate a unique range ID for grouping

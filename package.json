@@ -1,5 +1,5 @@
 {
-  "name": "college-attendance",
+  "name": "attendance-tracker",
   "version": "1.0.0",
   "description": "A fullstack Next.js app that logs into your college portal, scrapes attendance data using Puppeteer, stores it in a local JSON file, and displays your attendance visually on a calendar UI.",
   "main": "index.js",
